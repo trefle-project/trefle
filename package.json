@@ -32,6 +32,6 @@
     "compose:config": "docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml config -q"
   },
   "devDependencies": {
-    "prettier": "^3.3"
+    "prettier": "^3.9"
   }
 }
