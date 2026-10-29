@@ -27,4 +27,4 @@ jobs:
           path-to-signatures: signatures/version1/cla.json
           path-to-document: https://github.com/trefle-project/trefle/blob/main/CLA.md
           branch: cla-signatures
-          allowlist: dependabot[bot]
+          allowlist: dependabot[bot],kiaitutoi
