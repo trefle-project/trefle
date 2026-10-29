@@ -1,0 +1,3 @@
+# GrowthBook's own stats engine, the version bundled with GrowthBook 5.0.1.
+# Needs Python 3.11 (its pinned pandas has no wheel for 3.12+).
+gbstats==0.8.0

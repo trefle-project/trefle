@@ -1,0 +1,32 @@
+// 020-edge-html-cache — the edge Worker (contracts/edge-worker.md).
+// No `routes` here: which requests reach the Worker is applied by
+// infra/cloudflare (worker-routes.json, research R13), so a deploy never
+// changes routing by accident.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "trefle-edge",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": false,
+  "observability": { "enabled": true },
+  "analytics_engine_datasets": [{ "binding": "PAGE_VIEWS", "dataset": "trefle_page_views" }],
+  "queues": {
+    "producers": [{ "binding": "EXPOSURES_QUEUE", "queue": "trefle-exposures" }],
+    "consumers": [
+      {
+        "queue": "trefle-exposures",
+        "max_batch_size": 100,
+        "max_batch_timeout": 30,
+        "dead_letter_queue": "trefle-exposures-dlq"
+      }
+    ]
+  },
+  "triggers": { "crons": ["* * * * *"] },
+  // Secrets (wrangler secret put): EDGE_SECRET, FORM_TOKEN_SECRET,
+  // CF_ANALYTICS_TOKEN, CF_ACCOUNT_ID — see infra/cloudflare/README.md.
+  "vars": {
+    "MODE": "on",
+    "EXPOSURES": "on",
+    "ORIGIN_INGEST_URL": "https://example.com"
+  }
+}

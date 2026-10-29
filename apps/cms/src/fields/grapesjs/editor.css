@@ -1,0 +1,21 @@
+/* 016-carousel-block — settings panel labels above their field. GrapesJS
+   gives labels a 30% column with an ellipsis: in the narrow panel
+   « Diapositives visibles » read « Diap… ». Applies to every trait panel. */
+.gjs-trt-trait {
+  flex-wrap: wrap;
+}
+.gjs-trt-trait .gjs-label-wrp {
+  width: 100%;
+  min-width: 100%;
+}
+.gjs-trt-trait .gjs-label {
+  overflow: visible;
+  white-space: normal;
+}
+
+/* GrapesJS sizes its right column (settings / layers / blocks) at 15% of the
+   editor: under ~1200 px wide its four buttons no longer fit and the last
+   one is cut off. Never narrower than they need. */
+.gjs-editor {
+  --gjs-left-width: max(15%, 180px);
+}

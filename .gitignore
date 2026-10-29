@@ -1,0 +1,62 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+coverage/
+test-results/
+playwright-report/
+.playwright/
+blob-report/
+apps/web/tests/e2e/.artifacts/
+
+# next.js
+.next/
+out/
+
+# production
+build/
+dist/
+
+# payload (generated types ARE committed; build cache is not)
+apps/cms/.migrations.lock
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files — infra/.env and every .env* hold real secrets: never committed.
+.env
+.env.*
+!.env.example
+!.env.local.example
+!infra/.env.example
+!infra/cloudflare/secret.env.example
+infra/cloudflare/secret*
+!infra/cloudflare/secret.env.example
+# never commit an exported git-crypt key
+*git-crypt*.key
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# wrangler (020-edge-html-cache)
+.wrangler/

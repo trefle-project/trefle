@@ -1,0 +1,19 @@
+{
+  "_comment": "019-admin-access (contracts/edge-access.md) — the Access application in front of the internal hosts. Rendered and upserted by access.sh; {{…}} are filled from secret.env / infra/.env and the account. Eager redirect cookie is on by default for new applications (sets CF_Authorization on all three hosts at sign-in, which GrowthBook's UI needs for its API host).",
+  "name": "trefle-internal",
+  "type": "self_hosted",
+  "domain": "{{CMS_HOSTNAME}}",
+  "destinations": [
+    { "type": "public", "uri": "{{CMS_HOSTNAME}}" },
+    { "type": "public", "uri": "{{GROWTHBOOK_HOSTNAME}}" },
+    { "type": "public", "uri": "{{GROWTHBOOK_API_HOSTNAME}}" }
+  ],
+  "session_duration": "24h",
+  "allowed_idps": ["{{OTP_IDP_ID}}"],
+  "auto_redirect_to_identity": true,
+  "app_launcher_visible": false,
+  "enable_binding_cookie": true,
+  "http_only_cookie_attribute": true,
+  "same_site_cookie_attribute": "lax",
+  "options_preflight_bypass": true
+}

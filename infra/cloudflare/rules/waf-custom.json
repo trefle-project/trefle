@@ -1,0 +1,21 @@
+{
+  "_comment": "017-edge-protection — WAF custom rules (research R6, R16). The load-test rule is added by apply.sh only when LOADTEST_IP is set, and removed by the next apply without it. 019-admin-access removed the « Internal hosts: allowed addresses only » rule: the internal hosts are behind Cloudflare Access, checked again by Caddy (infra/cloudflare/access.sh, infra/deploy/Caddyfile). With no rule left, apply.sh empties the phase.",
+  "phase": "http_request_firewall_custom",
+  "rules": [
+    {
+      "description": "Load test: skip rate limiting for the k6 machine (temporary)",
+      "expression": "ip.src eq {{LOADTEST_IP}}",
+      "action": "skip",
+      "action_parameters": {
+        "phases": [
+          "http_ratelimit"
+        ]
+      },
+      "logging": {
+        "enabled": true
+      },
+      "enabled": true,
+      "_only_if": "LOADTEST_IP"
+    }
+  ]
+}

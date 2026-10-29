@@ -1,0 +1,62 @@
+# Dockerised Playwright run (C) — a consistent, CI-identical browser without a
+# local browser install. It runs the specs from an
+# `mcr.microsoft.com/playwright` container against a Trefle stack that is
+# ALREADY UP on the host (either `npm run dev` for cms+web, or a full
+# `docker compose up`). The container reaches the host via
+# `host.docker.internal`; global-setup registers that name as the fixture
+# domain so the renderer host-routes to it.
+#
+#   # 1. have the stack running on :3000 (cms) and :3001 (web), plus Mailpit
+#   # 2.
+#   npm run test:e2e:docker
+#
+# The image tag MUST track `@playwright/test` in apps/web/package.json.
+
+name: trefle-e2e
+
+services:
+  playwright:
+    image: mcr.microsoft.com/playwright:${PLAYWRIGHT_IMAGE_TAG:-v1.63.0-noble}
+    working_dir: /work
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      CI: "true"
+      E2E_BASE_URL: http://host.docker.internal:3001
+      # 020-edge-html-cache — E2E_EDGE=1 runs the suite through the local
+      # Worker (apps/edge/scripts/dev-e2e.sh) instead of the renderer directly.
+      E2E_EDGE: ${E2E_EDGE:-}
+      E2E_EDGE_URL: http://host.docker.internal:8787
+      # 018-ab-significance — set when the local Worker runs with EXPOSURES=on
+      # (EXPOSURES=on apps/edge/scripts/dev-e2e.sh): ab-measurement.spec.ts
+      # then checks the visitor id cookie at the edge.
+      E2E_EXPOSURES: ${E2E_EXPOSURES:-}
+      # 019-admin-access — E2E_TOTP=1 runs admin-totp.spec.ts against a cms
+      # started with the second factor on (TOTP_DISABLED=0).
+      E2E_TOTP: ${E2E_TOTP:-}
+      # 019-admin-access — the dev value of infra/.env (same in CI).
+      E2E_EDGE_SYNC_SECRET: ${E2E_EDGE_SYNC_SECRET:-dev-edge-sync-secret-not-for-production-0000}
+      E2E_SITE_HOST: host.docker.internal
+      CMS_API_URL: http://host.docker.internal:3000/api
+      CMS_URL: http://host.docker.internal:3000
+      CMS_ADMIN_URL: http://host.docker.internal:3000/admin
+      MAILPIT_URL: http://host.docker.internal:8025
+      E2E_RUN_US5: "1"
+      E2E_RUN_A11Y: "1"
+      E2E_ADMIN_EMAIL: ${E2E_ADMIN_EMAIL:-admin@trefle.localhost}
+      E2E_ADMIN_PASSWORD: ${E2E_ADMIN_PASSWORD:-trefle-dev-123}
+    volumes:
+      - ..:/work
+      # keep the host's (macOS/arm) node_modules out of the Linux container
+      - /work/node_modules
+      - /work/apps/web/node_modules
+      - /work/apps/cms/node_modules
+      - /work/apps/edge/node_modules
+      - /work/packages/shared/node_modules
+      - /work/packages/grapesjs-page-import/node_modules
+    command:
+      - bash
+      - -euxc
+      - |
+        npm ci --no-audit --no-fund
+        npm --workspace @trefle/web run test:e2e

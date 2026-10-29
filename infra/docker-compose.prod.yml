@@ -1,0 +1,320 @@
+# Trefle — production overlay for the Debian VPS.
+#
+#   docker compose -f infra/docker-compose.yml -f infra/docker-compose.prod.yml up -d
+#
+# It layers ON TOP of docker-compose.yml (NOT the dev override, which Compose
+# only auto-merges for the base file alone). Differences from base:
+#   - a Caddy reverse proxy terminates TLS and host-routes to cms / web
+#   - no host-published ports on db / cms / web / imgproxy (only Caddy is exposed)
+#   - restart: always, log rotation, tighter healthchecks
+#   - the CMS runs the retention worker (JOBS_AUTORUN=true) + carries RELEASE
+#   - a nightly pg_dump sidecar writes to a mounted backups volume
+#
+# See infra/deploy/README.md for the full runbook.
+
+name: trefle
+
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "5"
+
+services:
+  db:
+    <<: *logging
+    restart: always
+    ports: !reset []
+    environment:
+      # No dev fallback in prod — refuse to start on the default password.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set a strong POSTGRES_PASSWORD in infra/.env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - backups:/backups
+
+  cms:
+    <<: *logging
+    restart: always
+    ports: !reset []
+    depends_on:
+      garage-setup:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV: production
+      RELEASE: ${RELEASE:?set RELEASE (git sha or tag) in infra/.env}
+      ERROR_SINK_URL: ${ERROR_SINK_URL:-}
+      JOBS_AUTORUN: "true"
+      # 012-url-page-import — marks the real production deployment. The CMS
+      # refuses to boot with the test-only IMPORT_AI_MODE=fixture or
+      # IMPORT_ALLOW_PRIVATE_HOSTS set. Not NODE_ENV: CI runs the production
+      # images too. Leave ANTHROPIC_API_KEY empty to keep imports hidden.
+      DEPLOY_ENV: production
+      # Read by apps/cms/src/seed/dev.ts -- required (>=16 chars) once
+      # NODE_ENV=production, or seed:dev refuses to create a default admin
+      # password. Never had a compose wire-up before this; only documented
+      # in infra/.env.example / the README.
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?set SEED_ADMIN_PASSWORD (>=16 chars) in infra/.env}
+      PAYLOAD_PUBLIC_SERVER_URL: ${CMS_PUBLIC_URL:?set CMS_PUBLIC_URL in infra/.env}
+      ASSET_ORIGIN: ${ASSET_ORIGIN:?set ASSET_ORIGIN (public bucket base URL) in infra/.env}
+      # Re-declared here with no dev fallback so a default DB password fails fast.
+      DATABASE_URL: postgres://${POSTGRES_USER:-trefle}:${POSTGRES_PASSWORD:?set a strong POSTGRES_PASSWORD in infra/.env}@db:5432/${POSTGRES_DB:-trefle}
+      # 018-ab-significance — required: the migration creates growthbook_reader with it.
+      GROWTHBOOK_PG_PASSWORD: ${GROWTHBOOK_PG_PASSWORD:?set a strong GROWTHBOOK_PG_PASSWORD in infra/.env (openssl rand -hex 32)}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/access').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  web:
+    <<: *logging
+    restart: always
+    ports: !reset []
+    environment:
+      NODE_ENV: production
+      RELEASE: ${RELEASE:?set RELEASE (git sha or tag) in infra/.env}
+      ERROR_SINK_URL: ${ERROR_SINK_URL:-}
+      ASSET_ORIGIN: ${ASSET_ORIGIN:?set ASSET_ORIGIN (public bucket base URL) in infra/.env}
+      ASSET_S3_BUCKET: ${S3_BUCKET:-trefle-assets}
+      # Public imgproxy host (Caddy routes IMG_HOSTNAME -> imgproxy:8080).
+      IMGPROXY_URL: ${IMGPROXY_URL:?set IMGPROXY_URL to https://IMG_HOSTNAME in infra/.env}
+      IMGPROXY_KEY: ${IMGPROXY_KEY:?set IMGPROXY_KEY in infra/.env}
+      IMGPROXY_SALT: ${IMGPROXY_SALT:?set IMGPROXY_SALT in infra/.env}
+      NEXT_PUBLIC_VITALS_ENABLED: ${NEXT_PUBLIC_VITALS_ENABLED:-0}
+      # 020-edge-html-cache — shared with the edge Worker: a request carrying
+      # it is rendered in edge mode (contracts/origin-edge-mode.md). Blank =
+      # legacy mode only, so the renderer is unchanged until it is set.
+      EDGE_SECRET: ${EDGE_SECRET:-}
+      # Purge of cached pages on content changes (contracts/purge.md). Token:
+      # this zone, Cache Purge only. Blank = purge skipped.
+      CLOUDFLARE_PURGE_TOKEN: ${CLOUDFLARE_PURGE_TOKEN:-}
+      CLOUDFLARE_ZONE_ID: ${CLOUDFLARE_ZONE_ID:-}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # 012-url-page-import — headless browser for page imports. Base file
+  # already caps memory (1g) and publishes no port; `!reset` keeps it so.
+  browser:
+    <<: *logging
+    restart: always
+    ports: !reset []
+
+  imgproxy:
+    <<: *logging
+    restart: always
+    ports: !reset []
+    depends_on:
+      garage-setup:
+        condition: service_completed_successfully
+    environment:
+      IMGPROXY_ENFORCE_WEBP: "true"
+      IMGPROXY_MAX_SRC_RESOLUTION: "50"
+
+  # 008-ab-testing — same as db/cms/web/imgproxy: no host-published ports,
+  # only Caddy is exposed (GROWTHBOOK_HOSTNAME / GROWTHBOOK_API_HOSTNAME
+  # below). Offsite backup of growthbook-mongo-data is explicitly deferred
+  # to a dedicated backup session, not this feature — see
+  # docs/ab-testing-exploration.md §6; no mongo-backup sidecar here yet,
+  # matching pg-backup/garage-backup's shape when that lands.
+  growthbook-mongo:
+    <<: *logging
+    restart: always
+    ports: !reset []
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${GROWTHBOOK_MONGO_USER:-growthbook}
+      MONGO_INITDB_ROOT_PASSWORD: ${GROWTHBOOK_MONGO_PASSWORD:?set a strong GROWTHBOOK_MONGO_PASSWORD in infra/.env}
+
+  growthbook:
+    <<: *logging
+    restart: always
+    ports: !reset []
+    environment:
+      MONGODB_URI: mongodb://${GROWTHBOOK_MONGO_USER:-growthbook}:${GROWTHBOOK_MONGO_PASSWORD:?set a strong GROWTHBOOK_MONGO_PASSWORD in infra/.env}@growthbook-mongo:27017/growthbook?authSource=admin
+      APP_ORIGIN: ${GROWTHBOOK_APP_ORIGIN:?set GROWTHBOOK_APP_ORIGIN, e.g. https://experiments.trefle.example, in infra/.env}
+      API_HOST: ${GROWTHBOOK_API_HOST_PUBLIC:?set GROWTHBOOK_API_HOST_PUBLIC, e.g. https://experiments-api.trefle.example, in infra/.env}
+      GROWTHBOOK_PG_PASSWORD: ${GROWTHBOOK_PG_PASSWORD:?set a strong GROWTHBOOK_PG_PASSWORD in infra/.env (openssl rand -hex 32)}
+
+  caddy:
+    # 017-edge-protection (research R3) — Caddy + the Cloudflare DNS provider
+    # (DNS-01 issuance behind Cloudflare). Built on the VPS by release.sh.
+    build: ./caddy
+    image: trefle-caddy
+    restart: always
+    <<: *logging
+    depends_on:
+      - cms
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # 017 — Cloudflare ranges imported by the Caddyfile (refresh-ips.sh).
+      - ./deploy/cloudflare-ips.caddy:/etc/caddy/cloudflare-ips.caddy:ro
+      # 017 — our Authenticated Origin Pulls CA (aop/ca.pem, aop-cert.sh). A
+      # directory, so the mount exists before the certificate does.
+      - ./deploy/aop:/etc/caddy/aop:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    environment:
+      CMS_HOSTNAME: ${CMS_HOSTNAME:?e.g. admin.trefle.example}
+      WEB_HOSTNAMES: ${WEB_HOSTNAMES:?space-separated public hosts}
+      # 019-admin-access — the Caddyfile's `(access_jwt)` check on the internal
+      # hosts. `{$…}` in a Caddyfile is Caddy's own substitution, read from
+      # *this container's* environment, so each value needs an entry here;
+      # `:?` refuses to start without it. (The address list these replace,
+      # ADMIN_ALLOWED_IPS, once compiled away silently to "no matcher, wide
+      # open" for lack of such an entry — found on the first deployment.)
+      # ACCESS_TEAM_DOMAIN: https://<team>.cloudflareaccess.com; ACCESS_AUD: the
+      # application's AUD tag, printed by infra/cloudflare/apply.sh --sync-members.
+      ACCESS_TEAM_DOMAIN: ${ACCESS_TEAM_DOMAIN:?https://<team>.cloudflareaccess.com (019, infra/cloudflare/README.md)}
+      ACCESS_AUD: ${ACCESS_AUD:?the Access application AUD tag (infra/cloudflare/apply.sh --sync-members)}
+      IMG_HOSTNAME: ${IMG_HOSTNAME:?e.g. img.trefle.example}
+      # Only meaningful when the bucket is the self-hosted `garage` service
+      # below (option b in infra/.env.example) -- Caddy is what makes it
+      # publicly reachable. Set it to any unused hostname if you point
+      # S3_ENDPOINT at an external cluster instead (option a); Caddy will
+      # just never get traffic for it.
+      ASSET_HOSTNAME: ${ASSET_HOSTNAME:?e.g. assets.trefle.example}
+      # 008-ab-testing — GrowthBook's own admin UI, behind Cloudflare Access
+      # like CMS_HOSTNAME (019; equally sensitive: business/experiment
+      # data behind a login). Two hostnames, not one, because
+      # GrowthBook's front-end and API must run on distinct origins
+      # (docs.growthbook.io/self-host/env).
+      GROWTHBOOK_HOSTNAME: ${GROWTHBOOK_HOSTNAME:?e.g. experiments.trefle.example}
+      GROWTHBOOK_API_HOSTNAME: ${GROWTHBOOK_API_HOSTNAME:?e.g. experiments-api.trefle.example}
+      # 017-edge-protection — Cloudflare token for ACME DNS-01 (Zone:Read +
+      # DNS:Edit on the zone, nothing else). Unused until the Caddyfile's
+      # `(origin_tls)` snippet is imported; required from then on.
+      CLOUDFLARE_DNS_TOKEN: ${CLOUDFLARE_DNS_TOKEN:-}
+      # Where the DNS-01 TXT records are written (CNAME delegation target).
+      ACME_DELEGATE_HOSTNAME: ${ACME_DELEGATE_HOSTNAME:-}
+
+  # Single-node, self-hosted object store (infra/.env "option b"). Not an HA
+  # cluster -- see infra/garage/garage.prod.toml and the `garage-backup`
+  # sidecar below. Skip this whole service (and garage-setup) if S3_ENDPOINT
+  # in infra/.env already points at an external Garage/S3 cluster instead.
+  garage:
+    image: dxflrs/garage:v2.3.0
+    <<: *logging
+    hostname: garage
+    restart: always
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+    environment:
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:?set GARAGE_RPC_SECRET in infra/.env}
+      # --default-bucket provisions this bucket + a key with these creds on
+      # first boot -- the same S3_* values cms/web/imgproxy already use.
+      GARAGE_DEFAULT_ACCESS_KEY: ${S3_ACCESS_KEY_ID:?set S3_ACCESS_KEY_ID in infra/.env}
+      GARAGE_DEFAULT_SECRET_KEY: ${S3_SECRET_ACCESS_KEY:?set S3_SECRET_ACCESS_KEY in infra/.env}
+      GARAGE_DEFAULT_BUCKET: ${S3_BUCKET:-trefle-assets}
+    volumes:
+      - ./garage/garage.prod.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
+    healthcheck:
+      test: ["CMD", "/garage", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # One-shot: expose the bucket as a website so media URLs / admin thumbnails
+  # load over Caddy's ASSET_HOSTNAME vhost (ImgProxy itself reads s3://
+  # privately, not through this). Shares the metadata volume so its CLI finds
+  # the node key, then dials rpc_public_addr (garage:3901).
+  garage-setup:
+    image: dxflrs/garage:v2.3.0
+    <<: *logging
+    depends_on:
+      garage:
+        condition: service_healthy
+    command:
+      - "/garage"
+      - "bucket"
+      - "website"
+      - "--allow"
+      - "${S3_BUCKET:-trefle-assets}"
+      - "--index-document"
+      - "index.html"
+      - "--error-document"
+      - "error.html"
+    environment:
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:?set GARAGE_RPC_SECRET in infra/.env}
+    volumes:
+      - ./garage/garage-setup.prod.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta
+    restart: on-failure
+
+  # Nightly tar of the Garage volumes into the shared `backups` volume, same
+  # pattern/retention as pg-backup (offset 15min later to avoid contention).
+  # The host cron in README §3.3 ships both offsite. Full re-tar every night
+  # is the simple stopgap, not an incremental backup -- fine at this scale,
+  # revisit if the media bucket grows large.
+  garage-backup:
+    image: alpine:3.20
+    <<: *logging
+    restart: always
+    depends_on:
+      - garage
+    volumes:
+      - garage-data:/data:ro
+      - garage-meta:/meta:ro
+      - backups:/backups
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "garage-backup: nightly tar of garage-data + garage-meta at 03:45, 14-day retention"
+        while true; do
+          now=$$(date +%H%M);
+          if [ "$$now" = "0345" ]; then
+            f=/backups/garage-$$(date +%Y%m%d-%H%M%S).tar.gz;
+            tar czf "$$f" -C / data meta && echo "garage-backup: wrote $$f";
+            find /backups -name 'garage-*.tar.gz' -mtime +14 -delete;
+            sleep 60;
+          fi;
+          sleep 30;
+        done
+
+  pg-backup:
+    image: postgres:16
+    restart: always
+    <<: *logging
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-trefle}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set a strong POSTGRES_PASSWORD in infra/.env}
+      PGDATABASE: ${POSTGRES_DB:-trefle}
+    volumes:
+      - backups:/backups
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "pg-backup: nightly pg_dump at 03:30, 14-day retention"
+        while true; do
+          now=$$(date +%H%M);
+          if [ "$$now" = "0330" ]; then
+            f=/backups/trefle-$$(date +%Y%m%d-%H%M%S).sql.gz;
+            pg_dump --no-owner | gzip > "$$f" && echo "pg-backup: wrote $$f";
+            find /backups -name 'trefle-*.sql.gz' -mtime +14 -delete;
+            sleep 60;
+          fi;
+          sleep 30;
+        done
+
+volumes:
+  db-data:
+  backups:
+  caddy-data:
+  caddy-config:
+  garage-meta:
+  garage-data:
+  growthbook-mongo-data:
+  growthbook-uploads:

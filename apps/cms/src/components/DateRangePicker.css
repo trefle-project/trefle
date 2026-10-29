@@ -1,0 +1,36 @@
+/* 010-date-range-filters — remaps react-day-picker v10's `--rdp-*` custom
+ * properties (scoped under `.rdp-root`, imported before this file) to
+ * Payload's own `--theme-*` tokens, which already flip correctly between
+ * light and dark via Payload's `[data-theme]` toggle — no separate dark-mode
+ * block needed here (research.md §5). First external-CSS import in this
+ * codebase's admin components; see DateRangePicker.client.tsx's import
+ * order (this file after react-day-picker/style.css — load-bearing). */
+.trefle-date-range-filter .rdp-root {
+  --rdp-accent-color: var(--theme-success-500);
+  --rdp-accent-background-color: var(--theme-success-100);
+  --rdp-today-color: var(--theme-warning-600, var(--theme-elevation-800));
+  --rdp-range_start-background: var(--theme-success-500);
+  --rdp-range_end-background: var(--theme-success-500);
+  --rdp-range_start-color: var(--theme-elevation-0);
+  --rdp-range_end-color: var(--theme-elevation-0);
+  --rdp-range_middle-background-color: var(--theme-elevation-100);
+  --rdp-range_middle-color: var(--theme-text);
+  --rdp-selected-border: 2px solid var(--theme-success-500);
+}
+
+/* react-day-picker's own style.css sets `.rdp-month_caption` and
+ * `.rdp-selected` to the CSS absolute keyword `font-size: large` — sized off
+ * the browser's default root font size, not the admin's actual (smaller)
+ * base size. Every day within a selected range carries `.rdp-selected`
+ * (range mode, not just the start/end days), so this made the whole
+ * highlighted band render visibly larger than the rest of the calendar
+ * (found live: a screenshot of a real range selection). `inherit` matches
+ * the surrounding calendar instead of the browser's own default. */
+.trefle-date-range-filter .rdp-month_caption {
+  font-size: inherit;
+  font-weight: 600;
+}
+.trefle-date-range-filter .rdp-selected {
+  font-size: inherit;
+  font-weight: 600;
+}

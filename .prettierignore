@@ -1,0 +1,8 @@
+node_modules/
+**/.next/
+**/dist/
+**/build/
+**/coverage/
+package-lock.json
+apps/cms/src/payload-types.ts
+apps/cms/src/app/(payload)/

@@ -1,0 +1,251 @@
+From: <Saved by Blink>
+Snapshot-Content-Location: http://import-fixture/index.html
+Subject: =?utf-8?Q?Potager=20Facile=20=E2=80=94=20la=20newsletter=20du=20jardinier?=
+Date: Mon, 28 Sep 2026 07:53:57 GMT
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----MultipartBoundary--tsMmj7xoFdJewm9jyAtOHhGS7Blbvj5jPLXSFN4yIQ----"
+
+
+------MultipartBoundary--tsMmj7xoFdJewm9jyAtOHhGS7Blbvj5jPLXSFN4yIQ----
+Content-Type: text/html
+Content-ID: <frame-4013256D69A5C68FBA0635D10CD0907E@mhtml.blink>
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://import-fixture/index.html
+
+<!DOCTYPE html><html lang=3D"fr"><head><meta http-equiv=3D"Content-Type" co=
+ntent=3D"text/html; charset=3DUTF-8"><link rel=3D"stylesheet" type=3D"text/=
+css" href=3D"cid:css-4f1fd24a-708d-4b09-933b-c0d75fa517a1@mhtml.blink" />
+ =20
+  <meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D=
+1">
+  <title>Potager Facile =E2=80=94 la newsletter du jardinier</title>
+  <!-- 012-url-page-import e2e fixture: the source page imported by
+       us-import.spec.ts (fixture conversion, apps/cms/tests/fixtures/impor=
+t-ir.fixture.json).
+       Changing its text units changes the extract ids the canned IR refers=
+ to. -->
+ =20
+</head>
+<body>
+  <section class=3D"hero">
+    <h1>Un potager g=C3=A9n=C3=A9reux, sans y passer vos week-ends</h1>
+    <p>Chaque mardi, un conseil de saison test=C3=A9 dans nos jardins.</p>
+    <img class=3D"deco" src=3D"http://import-fixture/img/feuilles.svg" alt=
+=3D"">
+    <p><a class=3D"btn" href=3D"http://import-fixture/inscription">Je re=C3=
+=A7ois les conseils</a></p>
+  </section>
+
+  <section class=3D"features">
+    <div>
+      <h3>Des gestes simples</h3>
+      <p>Dix minutes par semaine suffisent pour un potager qui produit tout=
+ l'=C3=A9t=C3=A9.</p>
+    </div>
+    <div>
+      <h3>Au bon moment</h3>
+      <p>Semis, repiquage, r=C3=A9colte : chaque conseil arrive quand votre=
+ jardin en a besoin.</p>
+    </div>
+    <div>
+      <img src=3D"http://import-fixture/img/tomates.svg" width=3D"320" heig=
+ht=3D"200">
+      <h3>Sans produits chimiques</h3>
+      <p>Des m=C3=A9thodes naturelles, =C3=A9prouv=C3=A9es par nos jardinie=
+rs.</p>
+    </div>
+  </section>
+
+  <section class=3D"temoignage">
+    <blockquote>
+      <p>=C2=AB Mes tomates n'ont jamais =C3=A9t=C3=A9 aussi belles. =C2=BB=
+</p>
+      <p>Claire, jardini=C3=A8re =C3=A0 Nantes</p>
+    </blockquote>
+  </section>
+
+  <video class=3D"video" controls=3D"" width=3D"560" height=3D"315"></video=
+>
+
+  <section class=3D"signup">
+    <div>
+      <h2>Recevez les conseils de la semaine</h2>
+    </div>
+    <form action=3D"http://import-fixture/merci" method=3D"post">
+      <label for=3D"email">Votre email</label>
+      <input id=3D"email" name=3D"email" type=3D"email" required=3D"">
+      <label for=3D"prenom">Votre pr=C3=A9nom</label>
+      <input id=3D"prenom" name=3D"prenom" type=3D"text">
+      <label for=3D"jardin">Taille de votre jardin</label>
+      <select id=3D"jardin" name=3D"jardin">
+        <option value=3D"">Choisissez=E2=80=A6</option>
+        <option value=3D"petit">Petit</option>
+        <option value=3D"grand">Grand</option>
+      </select>
+      <label><input type=3D"checkbox" name=3D"rgpd" required=3D""> J'accept=
+e la politique de confidentialit=C3=A9</label>
+      <button type=3D"submit">Je m'inscris</button>
+    </form>
+  </section>
+
+
+</body></html>
+------MultipartBoundary--tsMmj7xoFdJewm9jyAtOHhGS7Blbvj5jPLXSFN4yIQ----
+Content-Type: image/svg+xml
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://import-fixture/img/tomates.svg
+
+<svg xmlns=3D"http://www.w3.org/2000/svg" width=3D"320" height=3D"200" view=
+Box=3D"0 0 320 200"><rect width=3D"320" height=3D"200" fill=3D"#fee2e2"/><c=
+ircle cx=3D"110" cy=3D"100" r=3D"55" fill=3D"#dc2626"/><circle cx=3D"215" c=
+y=3D"110" r=3D"45" fill=3D"#ef4444"/></svg>=0A
+------MultipartBoundary--tsMmj7xoFdJewm9jyAtOHhGS7Blbvj5jPLXSFN4yIQ----
+Content-Type: image/svg+xml
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://import-fixture/img/feuilles.svg
+
+<svg xmlns=3D"http://www.w3.org/2000/svg" width=3D"240" height=3D"120" view=
+Box=3D"0 0 240 120"><rect width=3D"240" height=3D"120" fill=3D"#bbf7d0"/><c=
+ircle cx=3D"60" cy=3D"60" r=3D"40" fill=3D"#22c55e"/><circle cx=3D"170" cy=
+=3D"60" r=3D"30" fill=3D"#16a34a"/></svg>=0A
+------MultipartBoundary--tsMmj7xoFdJewm9jyAtOHhGS7Blbvj5jPLXSFN4yIQ----
+Content-Type: image/jpeg
+Content-Transfer-Encoding: base64
+Content-Location: http://import-fixture/img/fond.jpg
+
+/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYn
+KSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo
+KCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAGQBLADASIAAhEBAxEB/8QAGgABAQEBAQEB
+AAAAAAAAAAAAAAEFAgQDCP/EACsQAQEAAQMBBwIHAQAAAAAAAAABAgMEETESEyFBUWFxIjIFFCRj
+gqGx8P/EABkBAQEAAwEAAAAAAAAAAAAAAAABAgQFA//EACIRAQEAAgEDBQEBAAAAAAAAAAABAgMR
+BBIhEyIxQVEUMv/aAAwDAQACEQMRAD8A/S4DiNoAAAQSotRFACgAgAAAIBQoIAKACgCAAAAgIqAA
+AAAAIAAoAglRagACAAgAAAIAAIAKAAAIAAJQogAAACgAACCIqAAICKgAAAAACAAAAglCiKAAAIAA
+ACAADkAUAAAQAAAEAoUEAAAFAEAAABKCKgAAADEAASotQABFABQAABAqLUAAKACAAKAAlCiDUAd5
+pgAACCVFqIoAUAEAAABAKFBABQAUAQAAAEBFQAAAAABAAFAEEqLUAAQAEAAABAABABQAABAABKFE
+AAAAUAAAQRFQABARUAAAAAAQAAAEEoURQAABAAAAQAAcgCgAACAAAAgFCggAAAoAgAAAJQRUAAAA
+YgJbJLbeJHi197x4aU/lXns2465zlWWOFy+HtysxnOVknu8+e70sfO5fEZ2eeWd5zytvu5aOfW5X
+/Me80T7e677Hywt+an579v8At4h5f1bf1n6WP40Md7p3rjlH2w1tPP7c5b6MkZ49ZnPnyl04/TaG
+Xo7nU0/DntY+le/Q18NafTeMvStzV1GGzx8V45a7i+oD2YFRagABQAQABQAEoUQagDvNMAAAQSot
+RFACgAgAAAIBQoIAKACgCAAAAgIqAAAAAAIAAoAglRagACAAgAAAIAAIAKAAAIAAJQogAAACgAAC
+CIqAAICKgAAAAACAAAAglCiKAAAIAAACAADkAUAAAQAAAEAoUEAAAFAEAAABKCKgAADnPOYY3LK8
+SKy93r97nxPsnT3a+/dNWPP29MMO+pudxlrZemHlHxBx8srnecm5JJOIAMQAAAAJbjZZeLAUaO13
+PefTn4Z/69LFlsvM8K1Nrrd7h4/dOro9Nv7/AG5fLX26+PMfaotRuPEAKACAAKAAlCiDUAd5pgAA
+CCVFqIoAUAEAAABAKFBABQAUAQAAAEBFQAAAAABAAFAEEqLUAAQAEAAABAABABQAABAABKFEAAAA
+UAAAQRFQABARUAAAAAAQAAAEEoURQAABAAAAQAAcgCgAACAAAAgFCggAAAoAgAAAJQRUAAB5N/q9
+jT7Evjl1+Gc+u6z7zXyvl0j5OJ1Gz1M7W7rx7cQB4MwAAAAAAAB9NDUulqzLy8/h8xlLcbzCznw2
+eeZLOg8+yz7WhJeuPg9DtYZd+MyjSynF4AGVQAQABQAEoUQagDvNMAAAQSotRFACgAgAAAIBQoIA
+KACgCAAAAgIqAAAAAAIAAoAglRagACAAgAAAIAAIAKAAAIAAJQogAAACgAACCIqAAICKgAAAAACA
+AAAglCiKAAAIAAACAADkAUAAAQAAAEAoUEAAAFAEAAABKCKgDjVy7Glnl6S12+G8vG2z/wC82Gy9
+uNrLGc2RlAOA3gAAAAAAAAAAAHq/D8uNTLH1nL3s3ZX9Rj78tJ1OkvOtq7p7gBtV5gCAAKAAlCiD
+UAd5pgAACCVFqIoAUAEAAABAKFBABQAUAQAAAEBFQAAAAABAAFAEEqLUAAQAEAAABAABABQAABAA
+BKFEAAAAUAAAQRFQABARUAAAAAAQAAAEEoURQAABAAAAQAAcgCgAACAAAAgFCggAAAoAgAAAJQRU
+AfDeTnbZ/wDeb7uNXHt6WePrLGGyd2NjLG8WVjAOA3gAAAAAAAAAAAH32U/UY+3LSeD8Px51MsvS
+cPe6nSTjW1d19wA2q8wBAAFAAShRBqAO80wAABBKi1EUAKACAAAAgFCggAoAKAIAAACAioAAAAAA
+gACgCCVFqAAIACAAAAgAAgAoAAAgAAlCiAAAAKAAAIIioAAgIqAAAAAAIAAACCUKIoAAAgAAAIAA
+OQBQAABAAAAQChQQAAAUAQAAAEoIqAAAyN1h3evlPLrHyaO/0u3pzOTxx6/DOcTqNfp52N3Xl3Yg
+DwZgAAAAAAAAPpoad1dWY+Xn8MpLleIW8eXt2WHZ0Zb1y8XoOOJJOkHawx7MZjGllebyAMqgAgAC
+gAJQog1AHeaYAAAglRaiKAFABAAAAQChQQAUAFAEAAABARUAAAAAAQABQBBKi1AAEABAAAAQAAQA
+UAAAQAAShRAAAAFAAAEERUAAQEVAAAAAAEAAABBKFEUAAAQAAAEAAHIAoAAAgAAAIBQoIAAAKAIA
+AACUEVAAAGVu9Dus+cfsvT2arnPCZ43HKcytffpm3Hj7emGfZWKPtudvlo5c9cPKvi4+WNwvGTcl
+lnMAGIAAAAASW2STm1QktvE8a1Nro91h4/derja7bu/qz8c/8el0em0dnuy+Wtt2c+IVFqNx5ABQ
+AQABQAEoUQagDvNMAAAQSotRFACgAgAAAIBQoIAKACgCAAAAgIqAAAAAAIAAoAglRagACAAgAAAI
+AAIAKAAAIAAJQogAAACgAACCIqAAICKgAAAAACAAAAglCiKAAAIAAACAADkAUAAAQAAAEAoUEAAA
+FAEAAABKCKgAAADESyWcWcx4tfZc+Olf417h57NWOycZRljlcfhi54ZYXjPGy+7ltZSZTjKSz3fD
+PaaWXlcfitHPosp/mveb59swe67HHyzs+Yn5H9z+nl/Lt/Gfq4/rxDQx2WnOuWVfbT0dPT+3Gc+r
+PHo878+Eu7H6Z+jttTU8eOzj6179DQw0Z9M5y9a+o3NXT4a/P28ctlyAHswKi1AACgAgACgAJQog
+1AHeaYAAAglRaiKAFABAAAAQChQQAUAFAEAAABARUAAAAAAQABQBBKi1AAEABAAAAQAAQAUAAAQA
+AShRAAAAFAAAEERUAAQEVAAAAAAEAAABBKFEUAAAQAAAEAAHIAoAAAgAAAIBQoIAAAKAIAAACUEV
+AAAAGIAAlRagACKACgAACBUWoAAUAEAAUABKFEGoA7zTAAAEEqLURQAoAIAAACAUKCACgAoAgAAA
+ICKgAAAAACAAKAIJUWoAAgAIAAACAACACgAACAACUKIAAAAoAAAgiKgACAioAAAAAAgAAAIJQoig
+AACAAAAgAA5AFAAAEAAABAKFBAAABQBAAAASgioAAAAxAAEqLUAARQAUAAAQKi1AACgAgACgAJQo
+g1AHeaYAAAglRaiKAFABAAAAQChQQAUAFAEAAABARUAAAAAAQABQBBKi1AAEABAAAAQAAQAUAAAQ
+AAShRAAAAFAAAEERUAAQEVAAAAAAEAAABBKFEUAAAQAAAEAAHIAoAAAgAAAIBQoIAAAKAIAAACUE
+VAAAAGIAAlRagACKACgAACBUWoAAUAEAAUABKFEGoA7zTAAAEEqLURQAoAIAAACAUKCACgAoAgAA
+AICKgAAAAACAAKAIJUWoAAgAIAAACAACACgAACAACUKIAAAAoAAAgiKgACAioAAAAAAgAAAIJQoi
+gAACAAAAgAA5AFAAAEAAABAKFBAAABQBAAAASgioAAAAxAAEqLUAARQAUAAAQKi1AACgAgACgAJQ
+og1AHeaYAAAglRaiKAFABAAAAQChQQAUAFAEAAABARUAAAAAAQABQBBKi1AAEABAAAAQAAQAUAAA
+QAAShRAAAAFAAAEERUAAQEVAAAAAAEAAABBKFEUAAAQAAAEAAHIAoAAAgAAAIBQoIAAAKAIAAACU
+EVAAAAGIAAlRagACKACgAACBUWoAAUAEAAUABKFEGoA7zTAAAEEqLURQAoAIAAACAUKCACgAoAgA
+AAICKgAAAAACAAKAIJUWoAAgAIAAACAACACgAACAACUKIAAAAoAAAgiKgACAioAAAAAAgAAAIJQo
+igAACAAAAgAA5AFAAAEAAABAKFBAAABQBAAAASgioAAAAxAAEqLUAARQAUAAAQKi1AACgAgACgAJ
+Qog1AHeaYAAAglRaiKAFABAAAAQChQQAUAFAEAAABARUAAAAAAQABQBBKi1AAEABAAAAQAAQAUAA
+AQAAShRAAAAFAAAEERUAAQEVAAAAAAEAAABBKFEUAAAQAAAEAAHIAoAAAgAAAIBQoIAAAKAIAAAC
+UEVAAAAGIAAlRagACKACgAACBUWoAAUAEAAUABKFEGoA7zTAAAEEqLURQAoAIAAACAUKCACgAoAg
+AAAICKgAAAAACAAKAIJUWoAAgAIAAACAACACgAACAACUKIAAAAoAAAgiKgACAioAAAAAAgAAAIJQ
+oigAACAAAAgAA5AFAAAEAAABAKFBAAABQBAAAASgioAAAAxAAEqLUAARQAUAAAQKi1AACgAgACgA
+JQog1AHeaYAAAglRaiKAFABAAAAQChQQAUAFAEAAABARUAAAAAAQABQBBKi1AAEABAAAAQAAQAUA
+AAQAAShRAAAAFAAAEERUAAQEVAAAAAAEAAABBKFEUAAAQAAAEAAHIAoAAAgAAAIBQoIAAAKAIAAA
+CUEVAAAAGIAAlRagACKACgAACBUWoAAUAEAAUABKFEGoA7zTAAAEEqLURQAoAIAAACAUKCACgAoA
+gAAAICKgAAAAACAAKAIJUWoAAgAIAAACAACACgAACAACUKIAAAAoAAAgiKgACAioAAAAAAgAAAIJ
+QoigAACAAAAgAA5AFAAAEAAABAKFBAAABQBAAAASgioAAAAxAAEqLUAARQAUAAAQKi1AACgAgACg
+AJQog1AHeaYAAAglRaiKAFABAAAAQChQQAUAFAEAAABARUAAAAAAQABQBBKi1AAEABAAAAQAAQAU
+AAAQAAShRAAAAFAAAEERUAAQEVAAAAAAEAAABBKFEUAAAQAAAEAAHIAoAAAgAAAIBQoIAAAKAIAA
+ACUEVAAAAGIAAlRagACKACgAACBUWoAAUAEAAUABKFEGoA7zTAAAEEqLURQAoAIAAACAUKCACgAo
+AgAAAICKgAAAAACAAKAIJUWoAAgAIAAACAACACgAACAACUKIAAAAoAAAgiKgACAioAAAAAAgAAAI
+JQoigAACAAAAgAA5AFAAAEAAABAKFBAAABQBAAAASgioAAAAxAAEqLUAARQAUAAAQKi1AACgAgAC
+gAJQog1AHeaYAAAglRaiKAFABAAAAQChQQAUAFAEAAABARUAAAAAAQABQBBKi1AAEABAAAAQAAQA
+UAAAQAAShRAAAAFAAAEERUAAQEVAAAAAAEAAABBKFEUAAAQAAAEAAHIAoAAAgAAAIBQoIAAAKAIA
+AACUEVAAAAGIAAlRagACKACgAACBUWoAAUAEAAUABKFEGoA7zTAAAEEqLURQAoAIAAACAUKCACgA
+oAgAAAICKgAAAAACAAKAIJUWoAAgAIAAACAACACgAACAACUKIAAAAoAAAgiKgACAioAAAAAAgAAA
+IJQoigAACAAAAgAA5AFAAAEAAABAKFBAAABQBAAAASgioAAAAxAAEqLUAARQAUAAAQKi1AACgAgA
+CgAJQog1AHeaYAAAglRaiKAFABAAAAQChQQAUAFAEAAABARUAAAAAAQABQBBKi1AAEABAAAAQAAQ
+AUAAAQAAShRAAAAFAAAEERUAAQEVAAAAAAEAAABBKFEUAAAQAAAEAAHIAoAAAgAAAIBQoIAAAKAI
+AAACUEVAAAAGIAAlRagACKACgAACBUWoAAUAEAAUABKFEGoA7zTAAAEEqLURQAoAIAAACAUKCACg
+AoAgAAAICKgAAAAACAAKAIJUWoAAgAIAAACAACACgAACAACUKIAAAAoAAAgiKgACAioAAAAAAgAA
+AIJQoigAACAAAAgAA5AFAAAEAAABAKFBAAABQBAAAASgioAAAAxAAEqLUAARQAUAAAQKi1AACgAg
+ACgAJQog/9k=
+
+------MultipartBoundary--tsMmj7xoFdJewm9jyAtOHhGS7Blbvj5jPLXSFN4yIQ----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: cid:css-4f1fd24a-708d-4b09-933b-c0d75fa517a1@mhtml.blink
+
+@charset "utf-8";
+
+body { margin: 0px; font-family: Montserrat, Arial, sans-serif; color: rgb(=
+31, 41, 55); }
+
+.hero { background: rgb(236, 253, 245); padding: 80px 24px; text-align: cen=
+ter; }
+
+.hero h1 { font-size: 56px; color: rgb(20, 83, 45); margin: 0px 0px 16px; }
+
+.hero p { font-size: 20px; }
+
+.hero .deco { width: 240px; height: 120px; }
+
+.btn { display: inline-block; padding: 14px 28px; background: rgb(21, 128, =
+61); color: rgb(255, 255, 255); border-radius: 8px; text-decoration: none; =
+}
+
+.features { display: flex; gap: 24px; max-width: 1100px; margin: 0px auto; =
+padding: 48px 24px; }
+
+.features > div { flex: 1 1 0%; }
+
+.features h3 { font-size: 22px; }
+
+.temoignage { background: url("/img/fond.jpg") center center / cover no-rep=
+eat rgb(254, 243, 199); padding: 24px 0px; }
+
+blockquote { max-width: 640px; margin: 0px auto; padding: 32px 24px; font-s=
+tyle: italic; }
+
+.signup { display: flex; gap: 32px; max-width: 960px; margin: 0px auto; pad=
+ding: 32px 24px; }
+
+.signup > div, .signup > form { flex: 1 1 0%; }
+
+.signup form { display: flex; flex-direction: column; gap: 8px; }
+
+.video { display: block; margin: 24px auto; width: 560px; height: 315px; ba=
+ckground: rgb(17, 17, 17); }
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 32px; }
+  .hero .deco { display: none; }
+  .features, .signup { flex-direction: column; }
+}
+------MultipartBoundary--tsMmj7xoFdJewm9jyAtOHhGS7Blbvj5jPLXSFN4yIQ------

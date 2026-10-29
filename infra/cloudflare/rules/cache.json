@@ -1,0 +1,39 @@
+{
+  "_comment": "017-edge-protection — Cache Rules (contracts/edge-config.md « Rules », research R8–R10). Page HTML is never cached in lot 1 (FR-009): every host that is not an image, asset or internal host is a page host — client www. custom hostnames included — and bypasses the cache except /_next/static/ (hashed, immutable). Lot 3 replaces the bypass rule.",
+  "phase": "http_request_cache_settings",
+  "rules": [
+    {
+      "description": "Pages: never cache HTML (lot 1), except /_next/static/",
+      "expression": "not http.host in {{{NON_PAGE_HOSTS}}} and not starts_with(http.request.uri.path, \"/_next/static/\")",
+      "action": "set_cache_settings",
+      "action_parameters": { "cache": false },
+      "enabled": true
+    },
+    {
+      "description": "Images (imgproxy): cache, origin TTL, two variants per URL (WebP / original)",
+      "expression": "http.host eq \"{{IMG_HOSTNAME}}\"",
+      "action": "set_cache_settings",
+      "action_parameters": {
+        "cache": true,
+        "edge_ttl": { "mode": "respect_origin" },
+        "browser_ttl": { "mode": "respect_origin" },
+        "vary": {
+          "default": { "action": "bypass" },
+          "headers": { "accept": { "action": "normalize", "media_types": ["image/webp"] } }
+        }
+      },
+      "enabled": true
+    },
+    {
+      "description": "Assets (media files, fonts): cache, origin TTL (immutable, keys never reused)",
+      "expression": "http.host eq \"{{ASSET_HOSTNAME}}\"",
+      "action": "set_cache_settings",
+      "action_parameters": {
+        "cache": true,
+        "edge_ttl": { "mode": "respect_origin" },
+        "browser_ttl": { "mode": "respect_origin" }
+      },
+      "enabled": true
+    }
+  ]
+}

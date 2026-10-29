@@ -1,0 +1,30 @@
+# Garage config for the local dev stack (docker-compose.override.yml).
+# Single node, no redundancy — the MinIO-equivalent S3 stand-in.
+# Secrets come from the environment (GARAGE_RPC_SECRET) / compose.
+# Prod uses a real multi-node Garage cluster, configured out of band.
+
+metadata_dir = "/var/lib/garage/meta"
+data_dir     = "/var/lib/garage/data"
+db_engine    = "sqlite"
+
+replication_factor = 1
+
+rpc_bind_addr   = "[::]:3901"
+# Self-connect target for the server's own CLI (and the healthcheck). Kept on
+# the loopback so it never depends on Docker DNS resolving the service name at
+# startup. The garage-setup sidecar uses garage-setup.toml, which points at
+# `garage:3901` instead.
+rpc_public_addr = "127.0.0.1:3901"
+
+[s3_api]
+s3_region     = "garage"
+api_bind_addr = "[::]:3900"
+root_domain   = ".s3.garage.localhost"
+
+[s3_web]
+bind_addr   = "[::]:3902"
+root_domain = ".web.garage.localhost"
+index       = "index.html"
+
+[admin]
+api_bind_addr = "[::]:3903"

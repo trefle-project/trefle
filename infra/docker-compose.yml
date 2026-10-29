@@ -1,0 +1,247 @@
+# Trefle stack — two application containers (cms, web) + one database + image proxy
+# + a headless browser used by the page import (012-url-page-import).
+# Local dev conveniences (Mailpit, MinIO S3 stand-in, source mounts, *.localhost
+# aliases) live in docker-compose.override.yml, which Compose merges automatically.
+#
+# Real secrets are read from infra/.env (git-crypt'd, never committed in plaintext).
+# infra/.env.example documents every key.
+
+name: trefle
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-trefle}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trefle}
+      POSTGRES_DB: ${POSTGRES_DB:-trefle}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-trefle}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  cms:
+    build:
+      context: ..
+      dockerfile: apps/cms/Dockerfile
+      target: runtime
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-trefle}:${POSTGRES_PASSWORD:-trefle}@db:5432/${POSTGRES_DB:-trefle}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in infra/.env}
+      PAYLOAD_PUBLIC_SERVER_URL: ${CMS_PUBLIC_URL:-http://localhost:3000}
+      # Scheme + optional port for the "Lien public" link on the Pages edit view
+      # (the host is the page's own domain — the renderer is host-routed).
+      PUBLIC_SITE_PROTOCOL: ${PUBLIC_SITE_PROTOCOL:-https}
+      PUBLIC_SITE_PORT: ${PUBLIC_SITE_PORT:-}
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_BUCKET: ${S3_BUCKET:-trefle-assets}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      # Public base URL of the bucket. Set -> media URLs point at the object
+      # store (public, cacheable) instead of Payload's /api/media/file route.
+      ASSET_ORIGIN: ${ASSET_ORIGIN:-}
+      IMGPROXY_URL: ${IMGPROXY_URL:-http://localhost:8080}
+      IMGPROXY_KEY: ${IMGPROXY_KEY}
+      IMGPROXY_SALT: ${IMGPROXY_SALT}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM:-trefle@localhost}
+      WEB_REVALIDATE_URL: ${WEB_REVALIDATE_URL:-http://web:3001/api/revalidate}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:?set REVALIDATE_SECRET in infra/.env}
+      UNSUBSCRIBE_SECRET: ${UNSUBSCRIBE_SECRET:?set UNSUBSCRIBE_SECRET in infra/.env}
+      # 006-double-optin-email — same shape as UNSUBSCRIBE_SECRET, own secret.
+      CONFIRM_TOKEN_SECRET: ${CONFIRM_TOKEN_SECRET:?set CONFIRM_TOKEN_SECRET in infra/.env}
+      # `seed:dev` runs in this container (README Option A) and pins the service
+      # user's API key to this value — it must match what `web` authenticates
+      # with, or the renderer gets 403 on every Payload read.
+      CMS_SERVICE_API_KEY: ${CMS_SERVICE_API_KEY:?set CMS_SERVICE_API_KEY in infra/.env}
+      # 012-url-page-import — the page import. The feature stays hidden unless
+      # ANTHROPIC_API_KEY is set (or IMPORT_AI_MODE=fixture) and the monthly
+      # cap in Settings is above 0. IMPORT_AI_MODE=fixture and
+      # IMPORT_ALLOW_PRIVATE_HOSTS are test-only: refused at boot when
+      # DEPLOY_ENV=production (set by docker-compose.prod.yml only).
+      BROWSER_WS_URL: ws://browser:3100/
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      IMPORT_AI_MODEL: ${IMPORT_AI_MODEL:-claude-opus-5}
+      IMPORT_AI_EFFORT: ${IMPORT_AI_EFFORT:-medium}
+      IMPORT_AI_MODE: ${IMPORT_AI_MODE:-}
+      IMPORT_ALLOW_PRIVATE_HOSTS: ${IMPORT_ALLOW_PRIVATE_HOSTS:-}
+      # 015-penpot-site-import — `on` shows « Importer un site Penpot ».
+      PENPOT_IMPORT: ${PENPOT_IMPORT:-}
+      # 019-admin-access — `1` turns the admin's second factor off (local dev
+      # and e2e only). Refused when DEPLOY_ENV=production unless
+      # ALLOW_TOTP_DISABLED=1 too (rollback of the 019 release, runbook).
+      TOTP_DISABLED: ${TOTP_DISABLED:-}
+      ALLOW_TOTP_DISABLED: ${ALLOW_TOTP_DISABLED:-}
+      # 019-admin-access — shared with infra/cloudflare/secret.env: apply.sh
+      # reads the member list with it (GET /api/edge-access). Empty = 503.
+      EDGE_SYNC_SECRET: ${EDGE_SYNC_SECRET:-}
+      # 018-ab-significance — GrowthBook analysis (empty key = off) and the
+      # password the migration gives the read-only role growthbook_reader.
+      GROWTHBOOK_API_URL: ${GROWTHBOOK_API_URL:-http://growthbook:3100/api}
+      GROWTHBOOK_API_KEY: ${GROWTHBOOK_API_KEY:-}
+      GROWTHBOOK_PG_PASSWORD: ${GROWTHBOOK_PG_PASSWORD:-}
+    networks:
+      - default
+      - browser
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/access').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+      target: runtime
+    restart: unless-stopped
+    depends_on:
+      - cms
+    environment:
+      CMS_API_URL: ${CMS_API_URL:-http://cms:3000/api}
+      CMS_SERVICE_API_KEY: ${CMS_SERVICE_API_KEY:?set CMS_SERVICE_API_KEY in infra/.env}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:?set REVALIDATE_SECRET in infra/.env}
+      UNSUBSCRIBE_SECRET: ${UNSUBSCRIBE_SECRET:?set UNSUBSCRIBE_SECRET in infra/.env}
+      CONFIRM_TOKEN_SECRET: ${CONFIRM_TOKEN_SECRET:?set CONFIRM_TOKEN_SECRET in infra/.env}
+      FORM_TOKEN_SECRET: ${FORM_TOKEN_SECRET:?set FORM_TOKEN_SECRET in infra/.env}
+      # 020-edge-html-cache — edge mode for requests from a local `wrangler dev`
+      # (e2e `edge` run, apps/edge/scripts/dev-e2e.sh). Blank = legacy only.
+      EDGE_SECRET: ${EDGE_SECRET:-}
+      # Asset pipeline (T086): with ASSET_ORIGIN + IMGPROXY_KEY/SALT set, the
+      # renderer rewrites <img> under ASSET_ORIGIN to signed, sized ImgProxy
+      # URLs served from IMGPROXY_URL.
+      ASSET_ORIGIN: ${ASSET_ORIGIN:-}
+      ASSET_S3_BUCKET: ${S3_BUCKET:-trefle-assets}
+      IMGPROXY_URL: ${IMGPROXY_URL:-http://localhost:8080}
+      IMGPROXY_KEY: ${IMGPROXY_KEY}
+      IMGPROXY_SALT: ${IMGPROXY_SALT}
+    ports:
+      - "3001:3001"
+    healthcheck:
+      # Liveness only: `/` depends on seeded content, so probe the listening port.
+      test: ["CMD", "node", "-e", "require('net').connect(3001,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  # 008-ab-testing — self-hosted GrowthBook (experimentation engine) + its
+  # own MongoDB (config/metadata only — Trefle's own content stays in
+  # Postgres above; GrowthBook is pointed at Postgres separately, read-only,
+  # as its *metrics* datasource, once a real experiment needs one).
+  # Not yet referenced by any app code (infra/.env documents the keys
+  # `apps/cms`/`apps/web` will consume once the renderer plumbing lands) —
+  # this stays inert on its own, per constitution Principle III.
+  growthbook-mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${GROWTHBOOK_MONGO_USER:-growthbook}
+      MONGO_INITDB_ROOT_PASSWORD: ${GROWTHBOOK_MONGO_PASSWORD:-growthbook}
+    volumes:
+      - growthbook-mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  growthbook:
+    # v5.0.1 — a security-patch release (fixes a critical self-hosted
+    # `/auth/*` vulnerability); pinned, not `:latest`, per this project's own
+    # version-pinning convention (Principle II). Re-check
+    # https://github.com/growthbook/growthbook/releases before bumping.
+    image: growthbook/growthbook:5.0.1
+    restart: unless-stopped
+    depends_on:
+      growthbook-mongo:
+        condition: service_healthy
+    environment:
+      MONGODB_URI: mongodb://${GROWTHBOOK_MONGO_USER:-growthbook}:${GROWTHBOOK_MONGO_PASSWORD:-growthbook}@growthbook-mongo:27017/growthbook?authSource=admin
+      JWT_SECRET: ${GROWTHBOOK_JWT_SECRET:?set GROWTHBOOK_JWT_SECRET in infra/.env}
+      ENCRYPTION_KEY: ${GROWTHBOOK_ENCRYPTION_KEY:?set GROWTHBOOK_ENCRYPTION_KEY in infra/.env}
+      # Browser-facing URLs for GrowthBook's own admin UI — *.localhost
+      # resolves to 127.0.0.1 with no /etc/hosts edit, same trick already
+      # used for admin.trefle.localhost etc.
+      APP_ORIGIN: ${GROWTHBOOK_APP_ORIGIN:-http://growthbook.trefle.localhost:3100}
+      API_HOST: ${GROWTHBOOK_API_HOST_PUBLIC:-http://growthbook.trefle.localhost:3101}
+      # 018-ab-significance — interpolated by config.yml (data source `trefle`).
+      GROWTHBOOK_PG_PASSWORD: ${GROWTHBOOK_PG_PASSWORD:-}
+      TREFLE_PG_DATABASE: ${POSTGRES_DB:-trefle}
+    ports:
+      - "3100:3000"
+      - "3101:3100"
+    volumes:
+      - growthbook-uploads:/usr/local/src/app/packages/back-end/uploads
+      # 018-ab-significance — the Postgres data source, as code (research R4).
+      - ./growthbook/config.yml:/usr/local/src/app/config/config.yml:ro
+    healthcheck:
+      # `/api/status` requires auth (verified live: 400 "Missing Authorization
+      # header" unauthenticated) — `/healthcheck` is the real unauthenticated
+      # liveness endpoint (verified live: 200).
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3100/healthcheck').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  # 012-url-page-import — renders the source page of an import (research R2).
+  # Loads untrusted third-party pages, so it is kept away from the database,
+  # the object store and the credentials: its only network is `browser`,
+  # shared with `cms`, and it publishes no port. The CMS drives it over
+  # WebSocket with playwright-core, whose version MUST equal this tag.
+  browser:
+    image: mcr.microsoft.com/playwright:v1.63.0-noble
+    restart: unless-stopped
+    user: pwuser
+    init: true
+    command: ["npx", "-y", "playwright@1.63.0", "run-server", "--port", "3100", "--host", "0.0.0.0"]
+    mem_limit: 1g
+    networks:
+      - browser
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('net').connect(3100,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+  imgproxy:
+    image: darthsim/imgproxy:v3.27
+    restart: unless-stopped
+    environment:
+      IMGPROXY_KEY: ${IMGPROXY_KEY:?set IMGPROXY_KEY in infra/.env}
+      IMGPROXY_SALT: ${IMGPROXY_SALT:?set IMGPROXY_SALT in infra/.env}
+      IMGPROXY_USE_S3: "true"
+      IMGPROXY_S3_ENDPOINT: ${S3_ENDPOINT}
+      IMGPROXY_S3_REGION: ${S3_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      IMGPROXY_ALLOWED_SOURCES: "s3://"
+    ports:
+      - "8080:8080"
+
+networks:
+  default:
+  # Not `internal`: the browser must reach the public web to load source pages.
+  browser:
+
+volumes:
+  db-data:
+  growthbook-mongo-data:
+  growthbook-uploads:

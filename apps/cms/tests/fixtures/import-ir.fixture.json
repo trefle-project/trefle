@@ -1,0 +1,72 @@
+{
+  "sourceHadMobileLayout": true,
+  "simplified": [],
+  "omitted": [{ "what": "Vidéo de présentation", "reason": "video" }],
+  "sections": [
+    {
+      "source": "Bandeau d'accueil",
+      "style": { "backgroundColor": "#ecfdf5", "paddingTop": 80, "paddingBottom": 80, "textAlign": "center" },
+      "devices": { "mobile": { "box": { "paddingTop": 40, "paddingBottom": 40 } } },
+      "rows": [
+        {
+          "kind": "blocks",
+          "blocks": [
+            {
+              "kind": "hero",
+              "heading": "t1",
+              "headingLevel": 1,
+              "text": ["t2"],
+              "cta": { "label": "t3", "href": "t3" },
+              "headingStyle": { "fontSize": 56, "color": "#14532d" },
+              "textStyle": { "fontSize": 20 },
+              "devices": { "mobile": { "text": { "fontSize": 32 } } }
+            },
+            { "kind": "image", "image": "i1", "maxWidth": 240, "devices": { "mobile": { "hidden": true } } }
+          ]
+        }
+      ]
+    },
+    {
+      "source": "Avantages",
+      "contentMaxWidth": 1100,
+      "rows": [
+        {
+          "kind": "columns",
+          "columns": [
+            { "blocks": [{ "kind": "rich-text", "parts": [{ "ref": "t4", "as": "h2", "style": { "fontSize": 22 } }, { "ref": "t5", "as": "p" }] }] },
+            { "blocks": [{ "kind": "rich-text", "parts": [{ "ref": "t6", "as": "h2", "style": { "fontSize": 22 } }, { "ref": "t7", "as": "p" }] }] },
+            {
+              "blocks": [
+                { "kind": "image", "image": "i2", "maxWidth": 320 },
+                { "kind": "rich-text", "parts": [{ "ref": "t8", "as": "h2", "style": { "fontSize": 22 } }, { "ref": "t9", "as": "p" }] }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source": "Témoignage",
+      "style": { "backgroundColor": "#fef3c7", "backgroundImage": "i3", "paddingTop": 24, "paddingBottom": 24 },
+      "rows": [{ "kind": "blocks", "blocks": [{ "kind": "testimonial", "quote": "t10", "author": "t11" }] }]
+    },
+    {
+      "source": "Inscription",
+      "contentMaxWidth": 960,
+      "rows": [
+        {
+          "kind": "columns",
+          "columns": [
+            {
+              "blocks": [
+                { "kind": "rich-text", "parts": [{ "ref": "t12", "as": "h2" }] },
+                { "kind": "call-to-action", "label": "t3", "href": "t3", "buttonColor": "#15803d" }
+              ]
+            },
+            { "blocks": [{ "kind": "lead-form", "form": "f1" }] }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+# Reviewed gitleaks findings (fingerprints as reported by
+# `gitleaks detect --no-git --source /repo`). None is a real secret:
+# - test tokens signed with a test key:
+/repo/apps/edge/tests/form-token.test.ts:generic-api-key:14
+/repo/packages/shared/tests/edge.test.ts:generic-api-key:29
+# - the local dev Garage stand-in, pinned on purpose (production reads its own
+#   values from infra/.env):
+/repo/infra/docker-compose.override.yml:generic-api-key:17
+/repo/infra/docker-compose.override.yml:generic-api-key:152

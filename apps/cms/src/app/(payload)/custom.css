@@ -1,0 +1,202 @@
+/*
+ * 022-ux-improvement — Trefle's own admin styles, loaded after Payload's
+ * (layout.tsx). Payload's rules sit in `@layer payload-default`, so these
+ * unlayered rules win without `!important`.
+ */
+
+/* US6 — Payload's « Last Modified / Created » follow the browser's clock;
+   AdminDocumentDates shows them in the member's zone instead. */
+.doc-controls__meta .doc-controls__value-wrap {
+  display: none;
+}
+
+.trefle-doc-dates {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-right: 8px;
+  font-size: 13px;
+  color: var(--theme-elevation-500);
+  white-space: nowrap;
+}
+
+.trefle-doc-dates strong {
+  color: var(--theme-elevation-800);
+  font-weight: 500;
+}
+
+/* US2 (FR-014) — menu: group headings stand out from the entries under them. */
+.nav-group__toggle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--theme-elevation-800);
+}
+
+.nav__link {
+  font-size: 14px;
+  line-height: 26px;
+}
+
+/* US2 (FR-015) — the open menu's width, set per member by NavResize (only
+   above Payload's phone breakpoint, where the menu covers the screen). */
+@media (min-width: 769px) {
+  :root {
+    --nav-width: var(--trefle-nav-width, 275px);
+  }
+}
+
+/* Fixed on the menu's right edge, above the page (the content's stacking
+   context covers the menu's own edge); shown while the menu is open. */
+.trefle-nav-resize {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: calc(var(--nav-width) - 4px);
+  height: 100vh;
+  width: 8px;
+  cursor: col-resize;
+  z-index: 50;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+body:has(.template-default--nav-open) .trefle-nav-resize {
+  display: block;
+}
+
+.trefle-nav-resize:hover,
+.trefle-nav-resize:focus-visible {
+  background: var(--theme-elevation-150);
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .trefle-nav-resize {
+    display: none;
+  }
+}
+
+/* US4 (FR-020) — the operator's tiled wallpaper, behind every admin screen
+   and the login page, under a veil that keeps content readable in both
+   themes (strength: Settings → « Opacité du voile », set on <body> as
+   --trefle-veil by AdminChrome). The page editor's canvas is an iframe
+   with its own background. */
+.trefle-wallpaper {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body:has(.trefle-wallpaper) .template-default,
+body:has(.trefle-wallpaper) .template-minimal {
+  background-color: color-mix(in srgb, var(--theme-bg) var(--trefle-veil, 85%), transparent);
+}
+
+/* Payload paints its content area opaque too: let the veil above show through. */
+body:has(.trefle-wallpaper) .template-default__wrap {
+  background-color: transparent;
+}
+
+/* US4 (FR-022) — « Powered by Trefle v x.x.x - r <tag> » on every screen. */
+.trefle-powered-by {
+  position: fixed;
+  right: 12px;
+  bottom: 6px;
+  z-index: 40;
+  font-size: 11px;
+  color: var(--theme-elevation-700);
+  background: color-mix(in srgb, var(--theme-bg) 80%, transparent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Checkboxes (fields, list row selection, filters…): Payload draws their
+   border with --theme-elevation-150, barely visible against the background
+   (worst in the dark theme). A mid-scale grey stands out in both themes
+   (the elevation scale flips with the theme). */
+.checkbox-input__input,
+.checkbox-input:not(.checkbox-input--read-only):active .checkbox-input__input,
+.checkbox-input:not(.checkbox-input--read-only):focus-within .checkbox-input__input {
+  border-color: var(--theme-elevation-400);
+}
+
+.checkbox-input:not(.checkbox-input--read-only):hover .checkbox-input__input {
+  border-color: var(--theme-elevation-600);
+}
+
+/* List column titles sit straight on the wallpaper (Payload gives the header
+   row no background): an opaque band keeps them readable in both themes. */
+body:has(.trefle-wallpaper) .table thead tr {
+  background: var(--theme-bg);
+}
+
+body:has(.trefle-wallpaper) .table thead th:first-child {
+  border-top-left-radius: var(--style-radius-s);
+  border-bottom-left-radius: var(--style-radius-s);
+}
+
+body:has(.trefle-wallpaper) .table thead th:last-child {
+  border-top-right-radius: var(--style-radius-s);
+  border-bottom-right-radius: var(--style-radius-s);
+}
+
+/* US1 — Pages Stats: the chart toggle at the start of each row. */
+.trefle-stats-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--theme-elevation-400);
+  border-radius: var(--style-radius-s);
+  background: var(--theme-input-bg);
+  color: var(--theme-elevation-800);
+  cursor: pointer;
+}
+
+.trefle-stats-toggle:hover {
+  border-color: var(--theme-elevation-600);
+}
+
+.trefle-stats-toggle svg {
+  transition: transform 150ms ease;
+}
+
+.trefle-stats-toggle[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+
+/* Page editor: the GrapesJS builder runs to the right edge of the main
+   column (Payload's top-level group keeps a gutter on both sides) — only
+   beside the sidebar: under 1024 px the column is the whole screen. */
+@media (min-width: 1025px) {
+  .group-field--top-level:has(.gjs-editor-cont) {
+    padding-right: 0;
+  }
+}
+
+/* Pages: live address and « save = republish » side by side above the
+   title, one under the other when there is no room. */
+.trefle-page-notices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 12px;
+  margin-bottom: 8px;
+}
+
+.trefle-page-notices > p {
+  flex: 1 1 280px;
+}
+
+/* 023-admin-i18n (US2) — Payload's own « Language » selector on the account
+   view only sets a browser cookie; the member's admin language is the
+   `adminLanguage` field of their account (stored, and the cookie follows). */
+.payload-settings__language {
+  display: none;
+}

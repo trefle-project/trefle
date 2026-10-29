@@ -1,0 +1,38 @@
+{
+  "name": "@trefle/grapesjs-page-import",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "main": "./src/plugin.ts",
+  "types": "./src/plugin.ts",
+  "exports": {
+    "./plugin": "./src/plugin.ts",
+    "./layout": "./src/layout.ts",
+    "./carousel": "./src/carousel.ts",
+    "./ir": "./src/ir.ts",
+    "./ir-wire": "./src/ir-wire.ts",
+    "./serialize": "./src/serialize.ts",
+    "./a11y": "./src/a11y.ts",
+    "./penpot": "./src/penpot/index.ts",
+    "./penpot/testing": "./tests/penpot/builders.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "grapesjs": "0.22.16"
+  },
+  "devDependencies": {
+    "grapesjs": "0.22.16",
+    "jsdom": "^30.0.1",
+    "typescript": "^5",
+    "vitest": "^2.1"
+  },
+  "dependencies": {
+    "@trefle/shared": "*",
+    "fflate": "0.8.3",
+    "zod": "^3.25.76"
+  }
+}

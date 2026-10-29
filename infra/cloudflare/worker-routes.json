@@ -1,0 +1,21 @@
+{
+  "_comment": "020-edge-html-cache, research R13 — Worker routes, applied by apply.sh with EDGE_ROUTES=test|live|off. \"worker\": false is a no-Worker route: more specific than */*, it keeps those requests off the Worker.",
+  "script": "trefle-edge",
+  "sets": {
+    "test": [{ "pattern": "{{EDGE_TEST_HOSTNAME}}/*", "worker": true }],
+    "live": [
+      { "pattern": "*/*", "worker": true },
+      { "pattern": "{{CMS_HOSTNAME}}/*", "worker": false },
+      { "pattern": "{{IMG_HOSTNAME}}/*", "worker": false },
+      { "pattern": "{{ASSET_HOSTNAME}}/*", "worker": false },
+      { "pattern": "{{GROWTHBOOK_HOSTNAME}}/*", "worker": false },
+      { "pattern": "{{GROWTHBOOK_API_HOSTNAME}}/*", "worker": false },
+      { "pattern": "*/_next/*", "worker": false },
+      { "pattern": "*/api/*", "worker": false },
+      { "pattern": "*/favicon.ico", "worker": false },
+      { "pattern": "*/robots.txt", "worker": false },
+      { "pattern": "*/sitemap.xml", "worker": false }
+    ],
+    "off": []
+  }
+}

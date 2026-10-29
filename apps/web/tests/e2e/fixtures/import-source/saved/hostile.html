@@ -1,0 +1,26 @@
+<!-- saved from url=(0022)http://cms:3000/admin -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0;url=http://cms:3000/">
+  <title>Page enregistrée piégée</title>
+  <!-- 013-saved-page-import, test:browser (import-render-file.test.ts):
+       nothing below may run or reach an internal address; the heading and
+       the paragraph must still be extracted. -->
+  <link rel="stylesheet" href="http://cms:3000/x.css">
+  <script>
+    document.body && (document.body.innerHTML = "SCRIPT RAN");
+    fetch("http://169.254.169.254/latest/meta-data/").catch(function () {});
+    document.addEventListener("DOMContentLoaded", function () {
+      document.body.innerHTML = "SCRIPT RAN";
+    });
+  </script>
+</head>
+<body>
+  <h1>Une page enregistrée piégée</h1>
+  <p>Ce paragraphe doit être repris tel quel.</p>
+  <img src="http://cms:3000/logo.png" alt="interne" width="120" height="80">
+  <iframe src="http://cms:3000/" width="300" height="150"></iframe>
+</body>
+</html>

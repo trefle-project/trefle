@@ -1,0 +1,70 @@
+{
+  "sourceHadMobileLayout": true,
+  "simplified": [],
+  "omitted": [{ "what": "Vidéo de présentation", "reason": "video" }],
+  "sections": [
+    {
+      "source": "Bandeau d'accueil",
+      "css": "background-color:#ecfdf5; padding-top:80px; padding-bottom:80px; text-align:center; @mobile{padding-top:40px; padding-bottom:40px}",
+      "rows": [
+        {
+          "kind": "blocks",
+          "blocks": [
+            {
+              "kind": "hero",
+              "heading": "t1",
+              "headingLevel": 1,
+              "text": ["t2"],
+              "cta": { "label": "t3", "href": "t3" },
+              "headingCss": "font-size:56px; color:#14532D; @mobile{font-size:32px}",
+              "textCss": "font-size:20px"
+            },
+            { "kind": "image", "image": "i1", "css": "max-width:240px; @mobile{display:none}" }
+          ]
+        }
+      ]
+    },
+    {
+      "source": "Avantages",
+      "css": "max-width:1100px",
+      "rows": [
+        {
+          "kind": "columns",
+          "columns": [
+            { "blocks": [{ "kind": "rich-text", "parts": [{ "ref": "t4", "as": "h2", "css": "font-size:22px" }, { "ref": "t5", "as": "p" }] }] },
+            { "blocks": [{ "kind": "rich-text", "parts": [{ "ref": "t6", "as": "h2", "css": "font-size:22px" }, { "ref": "t7", "as": "p" }] }] },
+            {
+              "blocks": [
+                { "kind": "image", "image": "i2", "css": "max-width:320px" },
+                { "kind": "rich-text", "parts": [{ "ref": "t8", "as": "h2", "css": "font-size:22px" }, { "ref": "t9", "as": "p" }] }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source": "Témoignage",
+      "css": "background-color:#fef3c7; background-image:i3; padding-top:24px; padding-bottom:24px",
+      "rows": [{ "kind": "blocks", "blocks": [{ "kind": "testimonial", "quote": "t10", "author": "t11" }] }]
+    },
+    {
+      "source": "Inscription",
+      "css": "max-width:960px",
+      "rows": [
+        {
+          "kind": "columns",
+          "columns": [
+            {
+              "blocks": [
+                { "kind": "rich-text", "parts": [{ "ref": "t12", "as": "h2" }] },
+                { "kind": "call-to-action", "label": "t3", "href": "t3", "buttonCss": "background-color:#15803d" }
+              ]
+            },
+            { "blocks": [{ "kind": "lead-form", "form": "f1" }] }
+          ]
+        }
+      ]
+    }
+  ]
+}

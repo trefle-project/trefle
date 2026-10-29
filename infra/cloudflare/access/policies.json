@@ -1,0 +1,11 @@
+{
+  "_comment": "019-admin-access — the application's two reusable policies, in order. trefle-members: the active members' e-mails, read from the CMS at each run ({{MEMBERS}}, never empty). trefle-automation: the trefle-apply service token, for apply.sh's own calls to the CMS.",
+  "policies": [
+    { "name": "trefle-members", "decision": "allow", "include": "{{MEMBERS}}" },
+    {
+      "name": "trefle-automation",
+      "decision": "non_identity",
+      "include": [{ "service_token": { "token_id": "{{SERVICE_TOKEN_ID}}" } }]
+    }
+  ]
+}

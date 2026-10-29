@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: lint · typecheck · unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: Build apps
+        run: |
+          npm run --workspace @trefle/cms build
+          npm run --workspace @trefle/web build
+        env:
+          PAYLOAD_SECRET: ci-not-a-real-secret-0000000000000000
+          DATABASE_URL: postgres://trefle:trefle@localhost:5432/trefle
+          REVALIDATE_SECRET: ci-revalidate-0000000000000000000000
+          UNSUBSCRIBE_SECRET: ci-unsubscribe-000000000000000000000
+          FORM_TOKEN_SECRET: ci-formtoken-00000000000000000000000
+          CMS_API_URL: http://localhost:3000/api
+          CMS_SERVICE_API_KEY: ci-service-key
+
+  e2e:
+    name: full stack (containers) + Playwright
+    runs-on: ubuntu-latest
+    needs: static
+    steps:
+      - name: Free disk space
+        # Every production image is built before Playwright runs, and 020's
+        # Worker tooling (workerd) added to the e2e container's install: the
+        # runner ran out of space (ENOSPC in npm ci). Toolchains this job
+        # never uses take tens of GB.
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          df -h /
+      - uses: actions/checkout@v4
+      - name: Provision infra/.env
+        # A throwaway env: the template plus generated dev secrets.
+        run: infra/dev-env.sh
+      - name: Bring the whole stack up (production images)
+        env:
+          # 015 domain fonts: never call Google from CI (import-fixture stands in).
+          GOOGLE_FONTS_CSS_URL: http://import-fixture/css2
+        run: |
+          docker compose --env-file infra/.env -f infra/docker-compose.yml -f infra/docker-compose.override.yml \
+            up -d --build --wait \
+            || (docker compose -f infra/docker-compose.yml logs && exit 1)
+      - name: Migrate + seed (in the cms container)
+        run: |
+          DC="docker compose --env-file infra/.env -f infra/docker-compose.yml -f infra/docker-compose.override.yml"
+          $DC exec -T cms npm --workspace @trefle/cms run payload:migrate
+          $DC exec -T cms npm --workspace @trefle/cms run seed:dev
+      - name: Page import browser tests (in the cms container)
+        # 012-url-page-import — drive the stack's `browser` container and the
+        # `import-fixture` site, which only the compose network can reach.
+        run: |
+          docker compose --env-file infra/.env -f infra/docker-compose.yml -f infra/docker-compose.override.yml \
+            exec -T cms npm --workspace @trefle/cms run test:browser
+      - name: Database tests (in the cms container)
+        # 020-edge-html-cache — atomic counters and row locks need real Postgres;
+        # they work in a throwaway schema (apps/cms/vitest.db.config.ts).
+        run: |
+          docker compose --env-file infra/.env -f infra/docker-compose.yml -f infra/docker-compose.override.yml \
+            exec -T cms npm --workspace @trefle/cms run test:db
+      - name: Playwright (dockerised runner)
+        run: |
+          df -h /
+          npm run test:e2e:docker
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report/
+            apps/web/test-results/
+          if-no-files-found: ignore
+      - if: always()
+        run: docker compose --env-file infra/.env -f infra/docker-compose.yml -f infra/docker-compose.override.yml down -v

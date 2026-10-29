@@ -1,0 +1,6 @@
+# Secrets are never committed here: infra/.env and infra/cloudflare/secret*
+# are gitignored local files (see infra/deploy/README.md).
+* text=auto
+*.penpot binary
+*.woff2 binary
+*.mhtml -text

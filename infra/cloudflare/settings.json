@@ -1,0 +1,14 @@
+{
+  "_comment": "017-edge-protection — zone settings (contracts/edge-config.md « Zone-wide », research R14). apply.sh PATCHes each one. Nothing here may change HTML or scripts between origin and visitor.",
+  "settings": {
+    "ssl": "strict",
+    "min_tls_version": "1.2",
+    "always_use_https": "on",
+    "browser_check": "on",
+    "rocket_loader": "off",
+    "email_obfuscation": "off",
+    "automatic_https_rewrites": "off",
+    "polish": "off"
+  },
+  "bot_fight_mode": false
+}

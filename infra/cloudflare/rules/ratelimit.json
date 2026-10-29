@@ -1,0 +1,18 @@
+{
+  "_comment": "017-edge-protection — the Free plan's single rate-limiting rule (research R7, FR-005): a human submits the lead form once; 5 POSTs in 10 s from one address is abuse, blocked at the edge for 10 s. The app's own limits (10/min, 100/day per address) stay.",
+  "phase": "http_ratelimit",
+  "rules": [
+    {
+      "description": "Lead form: 5 POST per 10 s per address",
+      "expression": "http.request.method eq \"POST\" and http.request.uri.path eq \"/api/leads\"",
+      "action": "block",
+      "ratelimit": {
+        "characteristics": ["cf.colo.id", "ip.src"],
+        "period": 10,
+        "requests_per_period": 5,
+        "mitigation_timeout": 10
+      },
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+# Config for the prod garage-setup sidecar only. Identical to
+# garage.prod.toml except rpc_public_addr points at the `garage` service
+# (the sidecar runs in its own container but shares the metadata volume, so
+# the node key / identity match).
+metadata_dir = "/var/lib/garage/meta"
+data_dir     = "/var/lib/garage/data"
+db_engine    = "sqlite"
+
+replication_factor = 1
+
+rpc_bind_addr   = "[::]:3901"
+rpc_public_addr = "garage:3901"
+
+[s3_api]
+s3_region     = "garage"
+api_bind_addr = "[::]:3900"
+root_domain   = ".s3.garage.internal"
+
+[s3_web]
+bind_addr   = "[::]:3902"
+root_domain = ".web.garage.internal"
+index       = "index.html"
+
+[admin]
+api_bind_addr = "[::]:3903"

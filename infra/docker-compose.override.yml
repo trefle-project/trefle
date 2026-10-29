@@ -1,0 +1,160 @@
+# Local dev overlay — merged automatically by `docker compose`.
+#
+# `docker compose up` runs the SAME production images as prod (Dockerfile
+# `runtime` target); this file only adds the local stand-ins (Mailpit for SMTP,
+# Garage for S3) and points the app env at them, plus publishes a few ports for
+# host tooling. Hot reload is NOT in a container — run it on the host:
+#   npm run --workspace @trefle/cms dev
+#   npm run --workspace @trefle/web dev
+#
+# Hosts: rely on *.localhost resolving to 127.0.0.1 (admin.trefle.localhost,
+# site-a.localhost, site-b.localhost, imgproxy.localhost,
+# trefle-assets.web.garage.localhost).
+
+x-garage-dev-creds: &garage-dev-creds
+  # Pinned so the app env is static (Garage would otherwise mint random keys).
+  # Dev stand-in only — prod Garage has its own keys in the git-crypt'd infra/.env.
+  GARAGE_RPC_SECRET: "0add3d87b2d423f13806b55e2c17a3371a6fb59a8247e39eb61e2b1f9a6b81db"
+  S3_ACCESS_KEY_ID: &garage-key "GKa34009028934938bd583e97c"
+  S3_SECRET_ACCESS_KEY: &garage-secret "58a77ee0c5208c46acdfdde1f21d004b653579f56dcd66694b7a3d7f28f7b0ae"
+
+services:
+  cms:
+    environment:
+      S3_ENDPOINT: http://garage:3900
+      S3_REGION: garage
+      S3_ACCESS_KEY_ID: *garage-key
+      S3_SECRET_ACCESS_KEY: *garage-secret
+      S3_BUCKET: trefle-assets
+      # Browser-reachable Garage web endpoint (published on :3902, bucket exposed
+      # as a website by garage-setup). Media URLs and admin thumbnails resolve
+      # here; the renderer rewrites published-page <img> through
+      # imgproxy.localhost:8080. `*.web.garage.localhost` -> 127.0.0.1 on macOS.
+      ASSET_ORIGIN: http://trefle-assets.web.garage.localhost:3902
+      # "Lien public" link -> http://<domain>:3001/<path> (the web app in dev).
+      PUBLIC_SITE_PROTOCOL: http
+      PUBLIC_SITE_PORT: "3001"
+      # This stack runs the prod image (NODE_ENV=production) but is local/CI —
+      # let `seed:dev` use its default admin password. Real prod
+      # (-f docker-compose.prod.yml, no overlay) never sets this and must pass
+      # SEED_ADMIN_PASSWORD.
+      SEED_ALLOW_DEFAULT_PASSWORD: "1"
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_SECURE: "false"
+      # 012-url-page-import — local/CI imports use the canned conversion (no
+      # AI key, no cost) and may load the e2e fixture site, which lives on
+      # the private compose network. Only that host name is exempted from
+      # the internal-address guard; `cms`, `db`, metadata IPs stay blocked.
+      IMPORT_AI_MODE: ${IMPORT_AI_MODE:-fixture}
+      IMPORT_ALLOW_PRIVATE_HOSTS: ${IMPORT_ALLOW_PRIVATE_HOSTS:-import-fixture}
+      # 015 domain fonts — empty = the real Google Fonts API; CI points it at
+      # the import-fixture stand-in (http://import-fixture/css2).
+      GOOGLE_FONTS_CSS_URL: ${GOOGLE_FONTS_CSS_URL:-}
+      # 015-penpot-site-import — on in dev and CI, off in prod until slice 4.
+      PENPOT_IMPORT: ${PENPOT_IMPORT:-on}
+      # 019-admin-access — no second factor in dev and the e2e suite (FR-013).
+      # `TOTP_DISABLED=0 docker compose … up -d cms` runs it enabled, for the
+      # E2E_TOTP=1 spec (apps/web/tests/e2e/admin-totp.spec.ts).
+      TOTP_DISABLED: ${TOTP_DISABLED:-1}
+    depends_on:
+      db:
+        condition: service_healthy
+      garage-setup:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+
+  web:
+    environment:
+      CMS_API_URL: http://cms:3000/api
+      # Same public bucket base as cms; used only to match + strip the `<img>`
+      # src prefix before signing an imgproxy URL (never fetched by `web`).
+      ASSET_ORIGIN: http://trefle-assets.web.garage.localhost:3902
+      IMGPROXY_URL: http://imgproxy.localhost:8080
+
+  imgproxy:
+    environment:
+      IMGPROXY_S3_ENDPOINT: http://garage:3900
+      IMGPROXY_S3_REGION: garage
+      AWS_ACCESS_KEY_ID: *garage-key
+      AWS_SECRET_ACCESS_KEY: *garage-secret
+
+  # 012-url-page-import — static source site for import tests (e2e and
+  # `test:browser`). On the `browser` network only, so the browser container
+  # can load it; `cms` resolves it too (same network).
+  import-fixture:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    networks:
+      - browser
+    volumes:
+      - ../apps/web/tests/e2e/fixtures/import-source:/usr/share/nginx/html:ro
+      - ../apps/web/tests/e2e/fixtures/import-source/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    restart: unless-stopped
+    ports:
+      - "8025:8025" # web UI
+      - "1025:1025" # SMTP
+
+  db:
+    ports:
+      - "5432:5432"
+
+  garage:
+    image: dxflrs/garage:v2.3.0
+    hostname: garage
+    restart: unless-stopped
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+    environment:
+      <<: *garage-dev-creds
+      # --default-bucket provisions this bucket + a key with the pinned creds
+      # above, RWO, on first boot.
+      GARAGE_DEFAULT_ACCESS_KEY: *garage-key
+      GARAGE_DEFAULT_SECRET_KEY: *garage-secret
+      GARAGE_DEFAULT_BUCKET: trefle-assets
+    volumes:
+      - ./garage/garage.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
+    ports:
+      - "3900:3900" # S3 API
+      - "3902:3902" # web endpoint (public assets)
+      - "127.0.0.1:3903:3903" # admin API
+    healthcheck:
+      test: ["CMD", "/garage", "status"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  # One-shot: expose the bucket as a website so admin thumbnails / preview <img>
+  # load over the public web endpoint (ImgProxy itself reads s3:// privately).
+  # Shares the metadata volume so its CLI can find the node key, then dials
+  # rpc_public_addr (garage:3901). `restart: on-failure` covers a slow start.
+  garage-setup:
+    image: dxflrs/garage:v2.3.0
+    depends_on:
+      garage:
+        condition: service_healthy
+    command:
+      - "/garage"
+      - "bucket"
+      - "website"
+      - "--allow"
+      - "trefle-assets"
+      - "--index-document"
+      - "index.html"
+      - "--error-document"
+      - "error.html"
+    environment:
+      GARAGE_RPC_SECRET: "0add3d87b2d423f13806b55e2c17a3371a6fb59a8247e39eb61e2b1f9a6b81db"
+    volumes:
+      - ./garage/garage-setup.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta
+    restart: on-failure
+
+volumes:
+  garage-meta:
+  garage-data:

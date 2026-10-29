@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Potager Facile — la newsletter du jardinier</title>
+  <!-- 012-url-page-import e2e fixture: the source page imported by
+       us-import.spec.ts (fixture conversion, apps/cms/tests/fixtures/import-ir.fixture.json).
+       Changing its text units changes the extract ids the canned IR refers to. -->
+  <style>
+    body { margin: 0; font-family: Montserrat, Arial, sans-serif; color: #1f2937; }
+    .hero { background: #ecfdf5; padding: 80px 24px; text-align: center; }
+    .hero h1 { font-size: 56px; color: #14532d; margin: 0 0 16px; }
+    .hero p { font-size: 20px; }
+    .hero .deco { width: 240px; height: 120px; }
+    .btn { display: inline-block; padding: 14px 28px; background: #15803d; color: #fff; border-radius: 8px; text-decoration: none; }
+    .features { display: flex; gap: 24px; max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
+    .features > div { flex: 1; }
+    .features h3 { font-size: 22px; }
+    .temoignage { background: #fef3c7 url(/img/fond.jpg) center / cover no-repeat; padding: 24px 0; }
+    blockquote { max-width: 640px; margin: 0 auto; padding: 32px 24px; font-style: italic; }
+    .signup { display: flex; gap: 32px; max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+    .signup > div, .signup > form { flex: 1; }
+    .signup form { display: flex; flex-direction: column; gap: 8px; }
+    .video { display: block; margin: 24px auto; width: 560px; height: 315px; background: #111; }
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 32px; }
+      .hero .deco { display: none; }
+      .features, .signup { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1>Un potager généreux, sans y passer vos week-ends</h1>
+    <p>Chaque mardi, un conseil de saison testé dans nos jardins.</p>
+    <img class="deco" src="/img/feuilles.svg" alt="">
+    <p><a class="btn" href="/inscription">Je reçois les conseils</a></p>
+  </section>
+
+  <section class="features">
+    <div>
+      <h3>Des gestes simples</h3>
+      <p>Dix minutes par semaine suffisent pour un potager qui produit tout l'été.</p>
+    </div>
+    <div>
+      <h3>Au bon moment</h3>
+      <p>Semis, repiquage, récolte : chaque conseil arrive quand votre jardin en a besoin.</p>
+    </div>
+    <div>
+      <img src="/img/tomates.svg" width="320" height="200">
+      <h3>Sans produits chimiques</h3>
+      <p>Des méthodes naturelles, éprouvées par nos jardiniers.</p>
+    </div>
+  </section>
+
+  <section class="temoignage">
+    <blockquote>
+      <p>« Mes tomates n'ont jamais été aussi belles. »</p>
+      <p>Claire, jardinière à Nantes</p>
+    </blockquote>
+  </section>
+
+  <video class="video" controls width="560" height="315"></video>
+
+  <section class="signup">
+    <div>
+      <h2>Recevez les conseils de la semaine</h2>
+    </div>
+    <form action="/merci" method="post">
+      <label for="email">Votre email</label>
+      <input id="email" name="email" type="email" required>
+      <label for="prenom">Votre prénom</label>
+      <input id="prenom" name="prenom" type="text">
+      <label for="jardin">Taille de votre jardin</label>
+      <select id="jardin" name="jardin">
+        <option value="">Choisissez…</option>
+        <option value="petit">Petit</option>
+        <option value="grand">Grand</option>
+      </select>
+      <label><input type="checkbox" name="rgpd" required> J'accepte la politique de confidentialité</label>
+      <button type="submit">Je m'inscris</button>
+    </form>
+  </section>
+</body>
+</html>

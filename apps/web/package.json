@@ -1,0 +1,46 @@
+{
+  "name": "@trefle/web",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "start": "next start --port 3001",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e:browsers": "playwright install chromium",
+    "pretest:e2e": "npm run e2e:browsers",
+    "test:e2e": "playwright test",
+    "pretest:e2e:local": "npm run e2e:browsers",
+    "test:e2e:local": "E2E_RUN_US5=1 E2E_RUN_A11Y=1 playwright test",
+    "pretest:e2e:ui": "npm run e2e:browsers",
+    "test:e2e:ui": "E2E_RUN_US5=1 E2E_RUN_A11Y=1 playwright test --ui",
+    "test:e2e:report": "playwright show-report"
+  },
+  "dependencies": {
+    "@trefle/shared": "*",
+    "html-react-parser": "^6.1.8",
+    "isomorphic-dompurify": "^4.2.0",
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.49",
+    "@tailwindcss/postcss": "^4",
+    "@types/jsdom": "30.0.0",
+    "@types/node": "24.13.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.4",
+    "jsdom": "30.0.1",
+    "otpauth": "9.5.2",
+    "tailwindcss": "^4",
+    "typescript": "5.9.3",
+    "vitest": "^2.1"
+  }
+}

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><title>Sous-ressource interne</title></head>
+<body>
+  <!-- test:browser (import-render-guard.test.ts): the metadata image, the
+       image on the cms container (by service name) and the image redirected
+       to it must be aborted by the import's request guard; the image
+       redirected within the site loads; the page must still render. -->
+  <h1>Page avec une image interne</h1>
+  <img src="http://169.254.169.254/latest/meta-data/logo.png" alt="interne" width="100" height="100">
+  <img src="http://cms:3000/logo.png" alt="interne par nom" width="100" height="100">
+  <img src="/img/redirect-internal.png" alt="redirigée vers l'interne" width="100" height="100">
+  <img src="/img/redirect-ok.jpg" alt="redirigée vers le site" width="100" height="100">
+  <p>Le reste de la page s'affiche.</p>
+</body>
+</html>

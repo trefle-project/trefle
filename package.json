@@ -1,0 +1,37 @@
+{
+  "name": "trefle",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "//overrides": "002-security-hardening Phase 4a — force patched transitives without bumping Payload (Phase 4b does that). undici stays on major 7; uuid clears GHSA-w5hq-g745-h8pq.",
+  "overrides": {
+    "undici": "^7.29.1",
+    "uuid": "^11.1.1"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:e2e": "npm run test:e2e:local --workspace @trefle/web",
+    "test:e2e:docker": "docker compose -f infra/docker-compose.e2e.yml run --rm -T playwright",
+    "test:e2e:docker:edge": "E2E_EDGE=1 docker compose -f infra/docker-compose.e2e.yml run --rm -T playwright",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "cms": "npm run --workspace @trefle/cms",
+    "web": "npm run --workspace @trefle/web",
+    "compose:up": "docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build",
+    "compose:config": "docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml config -q"
+  },
+  "devDependencies": {
+    "prettier": "^3.3"
+  }
+}

@@ -1,0 +1,33 @@
+# 018-ab-significance (research R4) — GrowthBook's data source, as code.
+# Mounted read-only at /usr/local/src/app/config/config.yml in the growthbook
+# container. GrowthBook reads only the two A/B tables, as the read-only role
+# growthbook_reader created by the CMS migration (no access to leads or pages).
+# Since 018 R15 the `visitor_id` column holds a per-view number: the unit of
+# analysis is one view of a page under test.
+# ${...} values are interpolated from the growthbook container's environment.
+datasources:
+  trefle:
+    type: postgres
+    name: Trefle
+    description: A/B exposures and attributed leads (anonymous visitor ids)
+    params:
+      host: db
+      port: 5432
+      user: growthbook_reader
+      password: ${GROWTHBOOK_PG_PASSWORD}
+      database: ${TREFLE_PG_DATABASE}
+    settings:
+      userIdTypes:
+        - userIdType: visitor_id
+          description: View number (random per view of a page under test, never stored on the device; 018 R15)
+      queries:
+        exposure:
+          - id: trefle_exposures
+            name: One exposure per view
+            userIdType: visitor_id
+            query: >
+              SELECT visitor_id, exposed_at AS timestamp,
+                     experiment_key AS experiment_id,
+                     variant_id::text AS variation_id
+              FROM ab_exposures
+            dimensions: []

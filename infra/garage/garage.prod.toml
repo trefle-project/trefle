@@ -1,0 +1,35 @@
+# Garage config for the self-hosted single-node production deployment
+# (the `garage` service in infra/docker-compose.prod.yml). Same shape as
+# ../garage/garage.toml (dev) -- single node, no redundancy. This is a
+# pragmatic stopgap for a one-VPS deploy, not an HA cluster: back up
+# garage-data / garage-meta (README §3.3, `garage-backup` sidecar).
+#
+# root_domain is never resolved over real DNS: Caddy (deploy/Caddyfile)
+# rewrites the Host header to "<bucket>.<root_domain>" when it proxies the
+# public ASSET_HOSTNAME to this container's :3902, so Garage's vhost-style
+# bucket routing works with no DNS entry of its own.
+
+metadata_dir = "/var/lib/garage/meta"
+data_dir     = "/var/lib/garage/data"
+db_engine    = "sqlite"
+
+replication_factor = 1
+
+rpc_bind_addr   = "[::]:3901"
+# Self-connect target for the server's own CLI / healthcheck -- loopback so
+# it never depends on Docker DNS at startup (see garage-setup.prod.toml,
+# which points at garage:3901 instead).
+rpc_public_addr = "127.0.0.1:3901"
+
+[s3_api]
+s3_region     = "garage"
+api_bind_addr = "[::]:3900"
+root_domain   = ".s3.garage.internal"
+
+[s3_web]
+bind_addr   = "[::]:3902"
+root_domain = ".web.garage.internal"
+index       = "index.html"
+
+[admin]
+api_bind_addr = "[::]:3903"
