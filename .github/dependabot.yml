@@ -5,6 +5,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      # Payload packages must move together (shared internal exports).
+      payload:
+        patterns:
+          - "payload"
+          - "@payloadcms/*"
   - package-ecosystem: github-actions
     directory: /
     schedule:
