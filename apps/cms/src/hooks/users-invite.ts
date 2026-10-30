@@ -14,13 +14,17 @@ export const usersSendInvite: CollectionAfterChangeHook = async ({ doc, operatio
   if ((context as { skipInvite?: boolean } | undefined)?.skipInvite || doc?.isService) return doc;
 
   try {
-    await req.payload.forgotPassword({
+    const token = await req.payload.forgotPassword({
       collection: "users",
       data: { email: doc.email },
       disableEmail: false,
       req,
     });
-    req.payload.logger.info(`invite: set-password email sent for user ${doc.id}`);
+    if (token) {
+      req.payload.logger.info(`invite: set-password email sent for user ${doc.id}`);
+    } else {
+      req.payload.logger.warn(`invite: no set-password email sent for user ${doc.id}`);
+    }
   } catch (err) {
     req.payload.logger.warn(`invite: set-password email failed for user ${doc.id}: ${String(err)}`);
   }

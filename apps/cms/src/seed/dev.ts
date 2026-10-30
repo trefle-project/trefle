@@ -52,8 +52,9 @@ async function main(): Promise<void> {
     limit: 1,
     overrideAccess: true,
   });
-  if (admins.totalDocs === 0) {
-    await payload.create({
+  let seedAdmin = admins.docs[0];
+  if (!seedAdmin) {
+    seedAdmin = await payload.create({
       collection: "users",
       overrideAccess: true,
       context: { skipInvite: true },
@@ -141,6 +142,10 @@ async function main(): Promise<void> {
   await payload.updateGlobal({
     slug: "settings",
     overrideAccess: true,
+    // Payload 3.92 does not pass overrideAccess to a global's field validation
+    // (payloadcms/payload#18279): without a user, the language relationships
+    // of the existing rows read as invalid.
+    user: { ...seedAdmin, collection: "users" },
     data: {
       retentionMonths: 24,
       // 023-admin-i18n — the dev stack and the e2e suite run a French admin

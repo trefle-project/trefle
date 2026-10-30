@@ -36,6 +36,10 @@ export const Users: CollectionConfig = {
   auth: {
     useAPIKey: true,
     tokenExpiration: 60 * 60 * 8,
+    // Payload's throttle looks the user up outside the current transaction, so
+    // the invitation sent while the user is being created would find nobody
+    // and send nothing. The admin is behind Cloudflare Access anyway.
+    forgotPassword: { minRequestInterval: 0 },
   },
   admin: {
     useAsTitle: "email",

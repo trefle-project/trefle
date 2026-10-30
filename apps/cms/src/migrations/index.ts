@@ -33,6 +33,7 @@ import * as migration_20261028_113848_admin_language from './20261028_113848_adm
 import * as migration_20261028_160000_english_public_paths from './20261028_160000_english_public_paths';
 import * as migration_20261029_140347_import_report_language from './20261029_140347_import_report_language';
 import * as migration_20261029_143638_visitor_submit_label from './20261029_143638_visitor_submit_label';
+import * as migration_20261030_090403_payload_3_92 from './20261030_090403_payload_3_92';
 
 export const migrations = [
   {
@@ -208,6 +209,11 @@ export const migrations = [
   {
     up: migration_20261029_143638_visitor_submit_label.up,
     down: migration_20261029_143638_visitor_submit_label.down,
-    name: '20261029_143638_visitor_submit_label'
+    name: '20261029_143638_visitor_submit_label',
+  },
+  {
+    up: migration_20261030_090403_payload_3_92.up,
+    down: migration_20261030_090403_payload_3_92.down,
+    name: '20261030_090403_payload_3_92'
   },
 ];

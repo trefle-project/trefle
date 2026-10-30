@@ -145,6 +145,10 @@
 	import origin_tls_aop
 	import page_access_log
 	encode zstd gzip
+	# Next's image optimizer is unused here (images go through ImgProxy):
+	# never expose it, it has been the target of remote-code-execution flaws.
+	@nextImage path /_next/image /_next/image/*
+	respond @nextImage 404
 	reverse_proxy web:3001 {
 		# Caddy sets this itself, overwriting anything the client sent —
 		# unlike X-Forwarded-For (which Caddy only appends to, leaving a
