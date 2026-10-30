@@ -228,11 +228,11 @@ export interface Page {
    */
   optInEmail?: (number | null) | OptInEmail;
   /**
-   * Page créée par un import depuis une page web.
+   * Page created by an import from a web page.
    */
   importedFrom?: (number | null) | PageImport;
   /**
-   * Page créée par un import de site Penpot.
+   * Page created by a Penpot site import.
    */
   siteImport?: (number | null) | SiteImport;
   builder?: {
@@ -283,6 +283,9 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
+    /**
+     * Leave empty: “Send”, or « Envoyer » on a French page.
+     */
     submitLabel?: string | null;
     successMessage?: string | null;
     /**
@@ -290,11 +293,11 @@ export interface Page {
      */
     consentPurposeText?: string | null;
     /**
-     * Laisser vide : le lien mène à la politique de confidentialité du domaine.
+     * Leave empty: the link leads to the domain's privacy policy.
      */
     privacyNoticeUrl?: string | null;
     /**
-     * Seulement avec une adresse propre ci-dessus.
+     * Only with an own address above.
      */
     privacyNoticeVersion?: string | null;
   };
@@ -306,21 +309,21 @@ export interface Page {
   customCode?: {
     head?: {
       /**
-       * Balises <meta>/<link> placées dans l'en-tête ; scripts exécutés avant le contenu de la page.
+       * <meta>/<link> tags placed in the head; scripts run before the page content.
        */
       code?: string | null;
       /**
-       * « Nécessite le consentement » : exécuté seulement après « Accepter » sur le bandeau cookies (pixels, statistiques). « Essentiel » : toujours exécuté (widget sans cookie de suivi).
+       * “Needs consent”: runs only after “Accept” on the cookie banner (pixels, statistics). “Essential”: always runs (widget without a tracking cookie).
        */
       consent?: ('consent' | 'essential') | null;
     };
     bodyEnd?: {
       /**
-       * Exécuté après le contenu de la page.
+       * Runs after the page content.
        */
       code?: string | null;
       /**
-       * « Nécessite le consentement » : exécuté seulement après « Accepter » sur le bandeau cookies (pixels, statistiques). « Essentiel » : toujours exécuté (widget sans cookie de suivi).
+       * “Needs consent”: runs only after “Accept” on the cookie banner (pixels, statistics). “Essential”: always runs (widget without a tracking cookie).
        */
       consent?: ('consent' | 'essential') | null;
     };
@@ -329,7 +332,7 @@ export interface Page {
           codeId: string;
           code?: string | null;
           /**
-           * « Nécessite le consentement » : exécuté seulement après « Accepter » sur le bandeau cookies (pixels, statistiques). « Essentiel » : toujours exécuté (widget sans cookie de suivi).
+           * “Needs consent”: runs only after “Accept” on the cookie banner (pixels, statistics). “Essential”: always runs (widget without a tracking cookie).
            */
           consent?: ('consent' | 'essential') | null;
           id?: string | null;
@@ -392,12 +395,12 @@ export interface Domain {
    */
   consentBannerEnabled?: boolean | null;
   /**
-   * Polices Google Fonts utilisables sur toutes les pages de ce domaine. Trefle les télécharge une fois et les sert lui-même (aucune requête vers Google depuis les pages).
+   * Google Fonts usable on every page of this domain. Trefle downloads them once and serves them itself (no request to Google from the pages).
    */
   fonts?:
     | {
         /**
-         * Nom exact sur Google Fonts, ex. « Inter Tight », « EB Garamond ».
+         * Exact name on Google Fonts, e.g. “Inter Tight”, “EB Garamond”.
          */
         family: string;
         weights: ('100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900')[];
@@ -407,7 +410,7 @@ export interface Domain {
       }[]
     | null;
   /**
-   * Responsable du traitement des leads et éditeur du site. Apparaît dans la politique de confidentialité et les mentions légales du domaine.
+   * Controller of the leads' data and publisher of the site. Appears in the domain's privacy policy and legal notice.
    */
   owner?: {
     name?: string | null;
@@ -418,15 +421,15 @@ export interface Domain {
     director?: string | null;
   };
   /**
-   * Si le propriétaire publie sa propre politique ailleurs : les liens y mènent et /privacy y redirige.
+   * If the owner publishes their own policy elsewhere: links lead there and /privacy redirects to it.
    */
   ownPrivacyPolicyUrl?: string | null;
   /**
-   * Si le propriétaire publie ses propres mentions légales ailleurs : les liens y mènent et /legal-notice y redirige.
+   * If the owner publishes their own legal notice elsewhere: links lead there and /legal-notice redirects to it.
    */
   ownLegalNoticeUrl?: string | null;
   /**
-   * Un paragraphe par langue ajouté à la place de {{extra}} dans la politique et dans les mentions légales (par exemple un autre prestataire du propriétaire).
+   * One paragraph per language, added in place of {{extra}} in the policy and in the legal notice (for example another provider of the owner).
    */
   legalExtras?:
     | {
@@ -499,7 +502,7 @@ export interface Media {
    */
   alt?: string | null;
   /**
-   * Image importée sans description : ajoutez-en une avant de publier.
+   * Imported image without a description: add one before publishing.
    */
   altPending?: boolean | null;
   importedBy?: (number | null) | PageImport;
@@ -511,6 +514,7 @@ export interface Media {
     | null;
   updatedAt: string;
   createdAt: string;
+  _objectKey?: string | null;
   url?: string | null;
   thumbnailURL?: string | null;
   filename?: string | null;
@@ -592,11 +596,11 @@ export interface User {
   role: 'admin' | 'editor';
   name?: string | null;
   /**
-   * Image carrée de préférence (1 Mo au plus). Sans avatar : vos initiales.
+   * A square image is best (1 MB at most). Without an avatar: your initials.
    */
   avatar?: (number | null) | AdminImage;
   /**
-   * Toutes les dates de l'admin s'affichent dans ce fuseau.
+   * Every date in the admin is shown in this time zone.
    */
   displayTimezone?: string | null;
   /**
@@ -612,7 +616,7 @@ export interface User {
    */
   invitationStatus?: ('invited' | 'active') | null;
   /**
-   * Vide = budget par défaut des réglages. 0 = pas d'import.
+   * Empty = the default budget from the settings. 0 = no import.
    */
   importMonthlyBudgetEur?: number | null;
   /**
@@ -625,11 +629,13 @@ export interface User {
   enableAPIKey?: boolean | null;
   apiKey?: string | null;
   apiKeyIndex?: string | null;
+  hasAPIKey?: boolean | null;
   email: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
   salt?: string | null;
   hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
   sessions?:
@@ -653,6 +659,7 @@ export interface AdminImage {
   updatedAt: string;
   createdAt: string;
   prefix?: string | null;
+  _objectKey?: string | null;
   url?: string | null;
   thumbnailURL?: string | null;
   filename?: string | null;
@@ -662,7 +669,7 @@ export interface AdminImage {
   height?: number | null;
 }
 /**
- * Fichiers que Trefle télécharge lui-même quand une famille est ajoutée aux « Polices du domaine » d'un domaine. Pour ajouter ou retirer une police, passez par ce domaine.
+ * Files Trefle downloads itself when a family is added to a domain's “Domain fonts”. To add or remove a font, go through that domain.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "fonts".
@@ -679,6 +686,7 @@ export interface Font {
   updatedAt: string;
   createdAt: string;
   prefix?: string | null;
+  _objectKey?: string | null;
   url?: string | null;
   thumbnailURL?: string | null;
   filename?: string | null;
@@ -826,7 +834,7 @@ export interface Experiment {
   createdAt: string;
 }
 /**
- * Archive en lecture seule : chaque version de la politique de confidentialité et des mentions légales, telle que publiée.
+ * Read-only archive: every version of the privacy policy and the legal notice, as published.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "legal-versions".
@@ -1489,6 +1497,7 @@ export interface MediaSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+  _objectKey?: T;
   url?: T;
   thumbnailURL?: T;
   filename?: T;
@@ -1539,6 +1548,7 @@ export interface FontsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   prefix?: T;
+  _objectKey?: T;
   url?: T;
   thumbnailURL?: T;
   filename?: T;
@@ -1704,11 +1714,13 @@ export interface UsersSelect<T extends boolean = true> {
   enableAPIKey?: T;
   apiKey?: T;
   apiKeyIndex?: T;
+  hasAPIKey?: T;
   email?: T;
   resetPasswordToken?: T;
   resetPasswordExpiration?: T;
   salt?: T;
   hash?: T;
+  resetPasswordRequestedAt?: T;
   loginAttempts?: T;
   lockUntil?: T;
   sessions?:
@@ -1754,6 +1766,7 @@ export interface AdminImagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   prefix?: T;
+  _objectKey?: T;
   url?: T;
   thumbnailURL?: T;
   filename?: T;
@@ -1899,11 +1912,11 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface Setting {
   id: number;
   /**
-   * Les leads plus anciens sont effacés automatiquement.
+   * Older leads are erased automatically.
    */
   retentionMonths: number;
   /**
-   * Fuseau des dates de l'admin pour les membres qui n'en ont pas choisi un dans leur compte.
+   * Time zone of the admin's dates for members who have not chosen one in their account.
    */
   adminTimezone: string;
   /**
@@ -1911,23 +1924,23 @@ export interface Setting {
    */
   adminLanguage: 'fr' | 'en';
   /**
-   * Les exports de leads excluent les consentements retirés, sauf choix contraire.
+   * Lead exports leave out withdrawn consents, unless chosen otherwise.
    */
   exportConsentedOnlyByDefault?: boolean | null;
   /**
-   * 0 désactive les imports.
+   * 0 turns imports off.
    */
   importMonthlyCapEur: number;
   /**
-   * Budget mensuel des utilisateurs sans budget propre
+   * Monthly budget of the users without a budget of their own
    */
   importDefaultUserBudgetEur: number;
   /**
-   * Convertit le coût du service de conversion (facturé en dollars).
+   * Converts the cost of the conversion service (billed in dollars).
    */
   importUsdToEurRate: number;
   /**
-   * Expéditeur des invitations et des notifications.
+   * Sender of the invitations and the notifications.
    */
   senderEmail?: string | null;
   notifyOnNewLead?: boolean | null;
@@ -1938,39 +1951,39 @@ export interface Setting {
       }[]
     | null;
   /**
-   * Vide : le trèfle Trefle.
+   * Empty: the Trefle clover.
    */
   adminLogo?: (number | null) | AdminImage;
   /**
-   * Vide : le trèfle Trefle.
+   * Empty: the Trefle clover.
    */
   adminIcon?: (number | null) | AdminImage;
   /**
-   * Vide : le trèfle Trefle.
+   * Empty: the Trefle clover.
    */
   adminFavicon?: (number | null) | AdminImage;
   /**
-   * Répété en mosaïque derrière tous les écrans de l'admin et la page de connexion. Vide : petits trèfles Trefle.
+   * Tiled behind every admin screen and the login page. Empty: small Trefle clovers.
    */
   adminPattern?: (number | null) | AdminImage;
   /**
-   * Même taille que le motif ; remplace le motif sur quelques cases tirées au hasard. Vide avec le motif Trefle : un trèfle à quatre feuilles.
+   * Same size as the pattern; replaces the pattern on a few tiles picked at random. Empty with the Trefle pattern: a four-leaf clover.
    */
   adminVariant?: (number | null) | AdminImage;
   variantMode?: ('perScreen' | 'oneIn') | null;
   variantCount?: number | null;
   /**
-   * Ex. motif 15×15 sur un écran 4K : 36 864 cases ; « 1 sur 36 864 » donne une variante par écran en moyenne.
+   * E.g. a 15×15 pattern on a 4K screen: 36,864 tiles; “1 in 36,864” gives one variant per screen on average.
    */
   variantOneIn?: number | null;
   /**
-   * Couleur de fond de l'admin posée sur le motif pour garder les écrans lisibles. 0 = motif brut, 100 = motif caché.
+   * The admin's background colour laid over the pattern to keep the screens readable. 0 = bare pattern, 100 = pattern hidden.
    */
   veilOpacity?: number | null;
   defaultPrivacyNoticeUrl?: string | null;
   defaultPrivacyNoticeVersion?: string | null;
   /**
-   * La société qui fournit et héberge les sites (sous-traitant des propriétaires de domaine). Apparaît dans chaque politique de confidentialité et mentions légales.
+   * The company that provides and hosts the sites (processor for the domain owners). Appears in every privacy policy and legal notice.
    */
   operator?: {
     name?: string | null;
@@ -1981,7 +1994,7 @@ export interface Setting {
     phone?: string | null;
   };
   /**
-   * Prestataires qui traitent des données des visiteurs pour l'opérateur (sous-traitants ultérieurs), dans l'ordre d'affichage. Marquez celui qui héberge les sites.
+   * Providers that process visitor data for the operator (sub-processors), in display order. Mark the one that hosts the sites.
    */
   suppliers?:
     | {
@@ -1996,7 +2009,7 @@ export interface Setting {
       }[]
     | null;
   /**
-   * Politique de confidentialité et mentions légales, une ligne par langue (le français est obligatoire : langue de repli). Variables : {{owner.name}}, {{owner.legalForm}}, {{owner.registration}}, {{owner.address}}, {{owner.email}}, {{owner.director}}, {{operator.name}}, {{operator.legalForm}}, {{operator.registration}}, {{operator.address}}, {{operator.email}}, {{operator.phone}}, {{host.name}}, {{host.address}}, {{host.phone}}, {{site}}, {{retention.leads}} ; seules dans un paragraphe : {{suppliers}} (liste des sous-traitants), {{extra}} (paragraphe propre au domaine) ; en tête de paragraphe : {{cookieBanner}} (paragraphe gardé seulement si le domaine affiche le bandeau). Un paragraphe dont une variable est vide n'est pas affiché. Modèle à relire : ce n'est pas un avis juridique.
+   * Privacy policy and legal notice, one row per language (French is required: fallback language). Variables: {{owner.name}}, {{owner.legalForm}}, {{owner.registration}}, {{owner.address}}, {{owner.email}}, {{owner.director}}, {{operator.name}}, {{operator.legalForm}}, {{operator.registration}}, {{operator.address}}, {{operator.email}}, {{operator.phone}}, {{host.name}}, {{host.address}}, {{host.phone}}, {{site}}, {{retention.leads}}; alone in a paragraph: {{suppliers}} (list of processors), {{extra}} (the domain's own paragraph); at the start of a paragraph: {{cookieBanner}} (paragraph kept only if the domain shows the banner). A paragraph with an empty variable is not shown. A template to review: this is not legal advice.
    */
   legalTexts?:
     | {
@@ -2038,7 +2051,7 @@ export interface Setting {
     | null;
   defaultConsentPurposeText?: string | null;
   /**
-   * Texte du bandeau de consentement aux cookies, une ligne par langue. Une ligne en français est obligatoire.
+   * Text of the cookie consent banner, one row per language. A row in French is required.
    */
   cookieBannerTranslations?:
     | {
